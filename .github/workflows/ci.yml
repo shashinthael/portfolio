@@ -1,5 +1,5 @@
 # Every push and pull request: build, then every check in docs/portfolio-spec.md §10.
-# On main, when everything is green: deploy to Cloudflare Workers.
+# On main (pushed or started by hand), when everything is green: deploy to Cloudflare Workers.
 name: CI
 
 on:
@@ -34,7 +34,8 @@ jobs:
 
   deploy:
     needs: test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # Deploys from main: on a push, or when the run is started by hand.
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     concurrency: deploy
     steps:
