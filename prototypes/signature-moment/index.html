@@ -1,0 +1,341 @@
+<!doctype html>
+<!--
+  PROTOTYPE — throwaway. Answers the ticket "The Signature moment" (.scratch/portfolio/issues/07-signature-moment.md).
+  He chose Stack in the hero and Gallery for the projects. This prototype settles the details in the decided look
+  (Maison · Porcelain) and content (Featured: AXD-Fraud, Edirisooriya Stores, Zeylan, Kivorana):
+  Stack nodes and hover, the Stack → Gallery handover, the Gallery's scroll pinning and write-ups, and every fallback.
+  Bar at the bottom simulates: normal · no WebGL · reduced motion · phone (390px).
+  Needs internet (three.js and fonts from CDNs). Open: `open prototypes/signature-moment/index.html`.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PROTOTYPE · Signature moment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/" } }</script>
+<style>
+  :root { --ink:#121212; --gold:#8a6d43; --dim:#6a6a6a; --rule:#d9d9d6; --lede:#434343; --line:#b8b8b4; --panel:rgba(255,255,255,.62); --white:#fff; }
+  * { box-sizing: border-box; } html, body { margin: 0; }
+  body { font-family: Inter, system-ui, sans-serif; color: var(--ink); background: radial-gradient(1100px 800px at 72% 30%, #fff 0%, #f3f3f1 55%, #e6e6e3 100%) fixed; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  .skip { position: absolute; left: -999px; } .skip:focus { left: 16px; top: 12px; z-index: 50; background: #fff; padding: 8px 12px; }
+  .lab { font: 500 10.5px Inter; letter-spacing: 2.4px; text-transform: uppercase; }
+  .top { position: fixed; inset: 0 0 auto 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 24px 48px; z-index: 10; background: linear-gradient(#ffffffee, #ffffff00); }
+  .top nav { display: flex; gap: 30px; } .top nav:last-child { justify-content: flex-end; } .top a { text-decoration: none; color: var(--dim); }
+  .mono { font: 400 26px "Cormorant Garamond"; letter-spacing: 4px; color: var(--gold); }
+
+  /* hero: text left, Stack right; short enough that the Fact strip shows in the first screen */
+  .hero { min-height: 78vh; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); align-items: end; padding: 96px 48px 28px; gap: 20px; }
+  .eyebrow { color: var(--gold); margin: 0 0 18px; }
+  h1 { font: 300 clamp(52px, 7.4vw, 116px)/.9 "Cormorant Garamond", serif; margin: 0; letter-spacing: -1.5px; }
+  h1 em { font-style: italic; color: var(--gold); padding-left: .55em; }
+  .lede { font: 300 16.5px/1.75 Inter; color: var(--lede); max-width: 46ch; margin: 24px 0 0; }
+  .ctas { display: flex; gap: 26px; margin-top: 28px; align-items: center; }
+  .btn { text-decoration: none; padding: 15px 28px; background: var(--gold); color: #fff; }
+  .link { text-decoration: none; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+  .phoneline { display: none; }
+  .stage { position: relative; height: min(64vh, 600px); }
+  .stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .stage figcaption { position: absolute; left: 0; bottom: 0; font: 400 11px "JetBrains Mono"; color: var(--dim); }
+  .pause { position: absolute; right: 0; bottom: 0; font: 500 10px Inter; letter-spacing: 2px; text-transform: uppercase; background: none; border: 1px solid var(--line); padding: 7px 10px; cursor: pointer; color: var(--dim); }
+  .pause:focus-visible, a:focus-visible, button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+  .svgfb { position: absolute; inset: 0; width: 100%; height: 100%; display: none; }
+  .fb .svgfb { display: block; } .fb .stage canvas { display: none; }
+
+  .facts { display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin: 0 48px; background: var(--panel); }
+  .facts div { padding: 20px 18px; border-left: 1px solid var(--rule); } .facts div:first-child { border-left: 0; }
+  .facts dt { color: var(--gold); margin-bottom: 8px; } .facts dd { margin: 0; font: 400 19px/1.3 "Cormorant Garamond"; }
+
+  section.block { padding: 16vh 48px 6vh; }
+  h2 { font: 300 60px "Cormorant Garamond"; margin: 0 0 40px; display: flex; gap: 24px; align-items: baseline; } h2 span { color: var(--gold); }
+  .row { display: grid; grid-template-columns: 1.2fr 1.6fr; gap: 40px; padding: 28px 0; border-top: 1px solid var(--rule); }
+  .row h3 { font: 400 34px/1.05 "Cormorant Garamond"; margin: 0 0 8px; } .row .k { color: var(--dim); }
+  .row ul { margin: 0; padding-left: 18px; font: 300 15px/1.75 Inter; color: var(--lede); }
+  .grade { display: inline-block; color: var(--gold); border: 1px solid var(--gold); padding: 4px 8px; margin-left: 10px; vertical-align: middle; }
+
+  /* Gallery: the section is tall; its viewer sticks while scroll turns the ring */
+  #work { height: 420vh; position: relative; padding: 0; }
+  #work .sticky { position: sticky; top: 0; height: 100vh; display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); align-items: center; padding: 0 48px; gap: 30px; }
+  #work h2 { margin-bottom: 26px; }
+  .writeup { position: relative; min-height: 340px; }
+  .wp { position: absolute; inset: 0 0 auto 0; opacity: 0; transform: translateY(14px); transition: opacity .6s, transform .6s; pointer-events: none; }
+  .wp.on { opacity: 1; transform: none; pointer-events: auto; }
+  .wp .k { color: var(--gold); } .wp h3 { font: 400 50px/1 "Cormorant Garamond"; margin: 12px 0 14px; }
+  .wp p { font: 300 15.5px/1.75 Inter; color: var(--lede); margin: 0 0 14px; max-width: 48ch; }
+  .wp .st { font: 400 12px "JetBrains Mono"; color: var(--dim); }
+  .wp .lnk { margin-top: 18px; display: flex; gap: 20px; }
+  .nav3d { display: flex; align-items: center; gap: 16px; margin-top: 30px; }
+  .nav3d button { font: 500 10.5px Inter; letter-spacing: 2px; text-transform: uppercase; background: none; border: 1px solid var(--line); padding: 10px 14px; cursor: pointer; }
+  .nav3d .count { font: 200 34px Inter; letter-spacing: -1px; } .nav3d .count small { font: 400 11px "JetBrains Mono"; color: var(--dim); }
+  .gview { position: relative; height: 78vh; } .gview canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; }
+  .cards { display: none; }
+  .fb #work { height: auto; padding: 16vh 48px 6vh; } .fb #work .sticky { display: none; }
+  .fb .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  .card { border: 1px solid var(--rule); background: var(--panel); padding: 24px; }
+  .card .shot { aspect-ratio: 16/9; background: linear-gradient(135deg, #f1efe9, #e2ddd2); display: grid; place-items: center; font: 400 11px "JetBrains Mono"; color: var(--dim); margin-bottom: 18px; }
+  .card h3 { font: 400 34px "Cormorant Garamond"; margin: 6px 0 8px; } .card p { font: 300 15px/1.7 Inter; color: var(--lede); margin: 0 0 10px; }
+
+  .foot { padding: 14vh 48px 18vh; text-align: center; } .foot p { font: italic 300 clamp(40px, 5vw, 72px) "Cormorant Garamond"; margin: 0 0 26px; }
+
+  @media (max-width: 760px) {
+    .top { padding: 16px 20px; grid-template-columns: auto 1fr; } .top nav:first-child { display: none; }
+    .hero { grid-template-columns: 1fr; min-height: auto; padding: 76px 20px 18px; }
+    .stage { order: -1; height: 250px; } .stage figcaption { display: none; } .pause { top: 0; bottom: auto; }
+    h1 { font-size: 54px; } .lede { font-size: 15px; } .ctas { margin-top: 20px; }
+    .phoneline { display: block; font: 400 12px/1.6 "JetBrains Mono"; color: var(--dim); margin-top: 14px; }
+    .facts { grid-template-columns: 1fr 1fr; margin: 0 16px; } .facts div:nth-child(odd) { border-left: 0; } .facts div:nth-child(n+3) { border-top: 1px solid var(--rule); } .facts div:last-child { grid-column: span 2; }
+    section.block { padding: 10vh 20px 4vh; } h2 { font-size: 42px; } .row { grid-template-columns: 1fr; gap: 10px; }
+    #work { height: auto; padding: 10vh 20px 4vh; } #work .sticky { position: static; height: auto; grid-template-columns: 1fr; padding: 0; }
+    .gview { height: 300px; order: -1; } .writeup { min-height: 400px; }
+    .fb .cards { grid-template-columns: 1fr; } .fb #work { padding: 10vh 20px 4vh; }
+  }
+  @media (prefers-reduced-motion: reduce) { .wp { transition: none; } }
+
+  /* prototype bar (not part of the design) */
+  #proto { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 99; display: flex; gap: 2px; background: #ff0; border: 2px solid #000; border-radius: 999px; padding: 5px; font: 600 13px -apple-system, system-ui, sans-serif; box-shadow: 0 6px 24px rgba(0,0,0,.3); white-space: nowrap; }
+  #proto a { text-decoration: none; padding: 8px 12px; border-radius: 999px; color: #000; } #proto a.on { background: #000; color: #ff0; }
+  body.phoneview { background: #777; } body.phoneview iframe { display: block; width: 390px; height: 844px; border: 0; border-radius: 30px; margin: 24px auto; box-shadow: 0 20px 60px rgba(0,0,0,.5); background: #fff; }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top lab"><nav><a href="#work">Work</a><a href="#experience">Experience</a></nav><div class="mono">S·E</div><nav><a href="#contact">Contact</a><a href="#">CV</a></nav></header>
+
+<main id="main">
+  <section class="hero">
+    <div>
+      <p class="eyebrow lab">Full Stack Developer · AI &amp; LLM Applications</p>
+      <h1>Shashintha<br><em>Edirisooriya</em></h1>
+      <p class="phoneline">Albhadreen · London · UK right to work to Nov 2028 · MSc, BSc First Class</p>
+      <p class="lede">I build .NET microservices, React front ends and the pipelines that ship them to Azure, and I'm helping my team experiment with agentic AI.</p>
+      <div class="ctas lab"><a class="btn" href="#">Download CV</a><a class="link" href="#contact">Get in touch</a></div>
+    </div>
+    <figure class="stage" style="margin:0">
+      <canvas id="stackGL" aria-hidden="true"></canvas>
+      <svg class="svgfb" id="stackSVG" viewBox="0 0 600 520" role="img" aria-label="Diagram of the stack I work in at Albhadreen"></svg>
+      <figcaption>The stack I work in at Albhadreen · hover a part</figcaption>
+      <button class="pause" id="pause" type="button">Pause motion</button>
+    </figure>
+  </section>
+
+  <dl class="facts">
+    <div><dt class="lab">Now</dt><dd>Intermediate Full Stack Developer, Albhadreen</dd></div>
+    <div><dt class="lab">Stack</dt><dd>C#, .NET, React, TypeScript, Python, Azure</dd></div>
+    <div><dt class="lab">Based</dt><dd>London · hybrid, remote or relocation</dd></div>
+    <div><dt class="lab">Right to work</dt><dd>UK Graduate visa, valid to Nov 2028</dd></div>
+    <div><dt class="lab">Education</dt><dd>MSc Software Engineering (Merit) · BSc First Class</dd></div>
+  </dl>
+
+  <section class="block" id="experience">
+    <h2><span class="lab">01</span>Experience</h2>
+    <div class="row"><div><h3>Intermediate Full Stack Developer</h3><div class="k lab">Albhadreen · Aug 2025 – Present · remote from London</div></div>
+      <ul><li>Build and maintain .NET microservices and REST APIs for the company's overseas recruitment platform, as one of three developers in an eight-person Scrum team.</li><li>Help the team experiment with agentic AI workflows on Azure OpenAI and Azure AI Foundry to automate manual recruitment processes.</li></ul></div>
+    <div class="row"><div><h3>Junior Full Stack Developer</h3><div class="k lab">Innovio IT Solutions · Jun 2024 – Jan 2025 · Colombo</div></div>
+      <ul><li>Built front-end features in React for a commercial point-of-sale system.</li><li>Developed Node.js REST endpoints and the SQL queries behind them.</li></ul></div>
+  </section>
+
+  <section class="block" id="work">
+    <div class="sticky">
+      <div>
+        <h2><span class="lab">02</span>Selected work</h2>
+        <div class="writeup" id="writeup" aria-live="polite"></div>
+        <div class="nav3d"><button id="prev" type="button">← Prev</button><span class="count"><span id="cnum">01</span><small> / 04</small></span><button id="next" type="button">Next →</button></div>
+      </div>
+      <div class="gview"><canvas id="galleryGL" aria-hidden="true"></canvas></div>
+    </div>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <section class="block" id="education">
+    <h2><span class="lab">03</span>Education</h2>
+    <div class="row"><div><h3>MSc Software Engineering <span class="grade lab">Merit</span></h3><div class="k lab">University of Hertfordshire · Jan 2025 – May 2026</div></div>
+      <ul><li>Modules included software quality and validation, design patterns, and agile development.</li><li>Dissertation: <a href="#work">AXD-Fraud</a>, fraud detection with neural networks.</li></ul></div>
+    <div class="row"><div><h3>BSc (Hons) Software Engineering <span class="grade lab">First Class</span></h3><div class="k lab">University of Wolverhampton · 2021 – 2024</div></div>
+      <ul><li>Final-year project: Market Price Forecasting Platform.</li></ul></div>
+  </section>
+
+  <footer class="foot" id="contact"><p>Let's build something.</p><a class="btn lab" href="#">Email me</a></footer>
+</main>
+
+<div id="proto"></div>
+
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+/* ── prototype simulation switches ── */
+const q = new URLSearchParams(location.search), SIM = q.get('sim') || 'normal';
+const bar = document.getElementById('proto');
+if (window === window.top) {
+  [['normal', 'Normal'], ['nowebgl', 'No WebGL'], ['reduce', 'Reduced motion'], ['phone', '📱 Phone']].forEach(([k, n]) => {
+    const a = document.createElement('a'); a.href = `?sim=${k}`; a.textContent = n; if (k === SIM) a.className = 'on'; bar.appendChild(a); });
+  if (SIM === 'phone') { document.body.className = 'phoneview'; [...document.body.children].forEach(el => el !== bar && el.remove());
+    const f = document.createElement('iframe'); f.src = 'index.html?sim=normal'; document.body.prepend(f); throw new Error('phone view'); }
+} else bar.remove();
+
+/* ── content (in the real build: typed data files, guarded by the claim-rules test) ── */
+const NODES = [ // [id, label, short label for phones, x, y, z]
+  ['fe', 'React · TypeScript', 'React · TS', -1.8, 1.2, .3], ['api', 'REST APIs', 'REST', -1.1, -.35, .9], ['net', '.NET microservices', '.NET', 0, .35, 0],
+  ['sql', 'SQL Server', 'SQL', 1.5, -1.1, .4], ['az', 'Azure', 'Azure', 1.7, 1.05, -.4], ['ai', 'Azure OpenAI · AI Foundry (experimental)', 'Azure OpenAI (exp.)', .2, 1.95, -.9],
+  ['gha', 'GitHub Actions', 'Actions', -.5, -1.55, -.6], ['dock', 'Docker', 'Docker', .6, -1.95, .9], ['ins', 'App Insights', 'Insights', 1.75, -.2, 1.1], ['test', 'xUnit · pytest', 'Tests', -1.9, -1.2, -.2],
+];
+const LINKS = [['fe', 'api'], ['api', 'net'], ['net', 'sql'], ['net', 'az'], ['net', 'ai'], ['gha', 'dock'], ['dock', 'az'], ['az', 'ins'], ['ins', 'net'], ['gha', 'net'], ['test', 'gha'], ['test', 'net']];
+const PROJECTS = [
+  { title: 'AXD-Fraud', kind: 'MSc dissertation · 2026', stack: 'Python · TensorFlow · SHAP · Flask · React',
+    text: ['My MSc dissertation. A neural network spots fraudulent card transactions, SHAP explains each prediction, and a drift detector I wrote from scratch flags when the model starts to degrade.', 'The best model reached an F1-score of 0.82, evaluated without data leakage.'],
+    links: [['GitHub ↗', '#']] },
+  { title: 'Edirisooriya Stores', kind: 'Shop system · 2026', stack: 'Electron · React · TypeScript · SQLite · Supabase',
+    text: ['A shop system for a retail and wholesale shop: a counter POS with billing, credit customers and stock, an iPhone app for the owner, and a cloud copy.', 'The business rules are plain TypeScript with their own tests, and the cloud security rules are tested too.'],
+    links: [['Screenshots', '#']] },
+  { title: 'Zeylan', kind: 'Personal project · 2026', stack: 'TypeScript · Astro · three.js · Cloudflare Workers · D1',
+    text: ['A trip planner for Sri Lanka holidays. Visitors choose who\'s travelling, how long and a comfort level, then see a price estimate and the best route on a 3D island.', 'Enquiries are spam-checked, stored and emailed, and every change is tested and deployed by CI.'],
+    links: [['Live site ↗', 'https://zeylan.zeylan-travel.workers.dev'], ['GitHub ↗', '#']] },
+  { title: 'Kivorana', kind: 'My web studio · 2026', stack: 'Next.js · TypeScript · Cloudflare Pages',
+    text: ['The site for my own web studio for local businesses. Every price on every page is calculated from one config file.', 'It includes a scripted demo of the AI assistant I offer to cafés and B&Bs.'],
+    links: [['Live site ↗', 'https://kivorana.pages.dev']] },
+];
+
+/* write-ups (HTML, so screen readers and search engines get the Gallery too) */
+const wu = document.getElementById('writeup'), cards = document.getElementById('cards');
+PROJECTS.forEach((p, i) => {
+  const body = `<div class="k lab">${p.kind}</div><h3>${p.title}</h3>${p.text.map(t => `<p>${t}</p>`).join('')}<div class="st">${p.stack}</div><div class="lnk lab">${p.links.map(([n, h]) => `<a class="link" href="${h}">${n}</a>`).join('')}</div>`;
+  wu.insertAdjacentHTML('beforeend', `<article class="wp${i ? '' : ' on'}" data-i="${i}" ${i ? 'aria-hidden="true"' : ''}>${body}</article>`);
+  cards.insertAdjacentHTML('beforeend', `<article class="card"><div class="shot">screenshot</div>${body}</article>`);
+});
+
+/* ── capability checks ── */
+const reduced = SIM === 'reduce' || matchMedia('(prefers-reduced-motion: reduce)').matches;
+const mobile = () => innerWidth < 760;
+function makeRenderer(canvas) {
+  if (SIM === 'nowebgl') return null;
+  try { const r = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, failIfMajorPerformanceCaveat: false });
+    r.setPixelRatio(Math.min(devicePixelRatio, 2)); r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = .9; return r; } catch { return null; }
+}
+const rStack = makeRenderer(document.getElementById('stackGL'));
+const rGal = rStack && makeRenderer(document.getElementById('galleryGL'));
+if (!rStack || !rGal) { document.documentElement.classList.add('fb'); drawStackSVG(); document.getElementById('pause').remove(); }
+
+/* gallery index: scroll (desktop), buttons, keys, drag */
+let gIndex = 0;
+function setIndex(i, fromScroll) {
+  i = (i + PROJECTS.length) % PROJECTS.length; if (i === gIndex && !fromScroll) return; gIndex = i;
+  document.querySelectorAll('.wp').forEach(el => { const on = +el.dataset.i === i; el.classList.toggle('on', on); el.toggleAttribute('aria-hidden', !on); });
+  document.getElementById('cnum').textContent = String(i + 1).padStart(2, '0');
+  if (!fromScroll && !mobile()) { const w = document.getElementById('work'), top = w.offsetTop, span = w.offsetHeight - innerHeight; scrollTo({ top: top + span * (i + .5) / PROJECTS.length, behavior: reduced ? 'auto' : 'smooth' }); }
+}
+document.getElementById('prev').onclick = () => setIndex(gIndex - 1);
+document.getElementById('next').onclick = () => setIndex(gIndex + 1);
+addEventListener('scroll', () => { if (mobile() || !rGal) return; const w = document.getElementById('work'), p = (scrollY - w.offsetTop) / (w.offsetHeight - innerHeight);
+  if (p >= 0 && p <= 1) { const i = Math.min(PROJECTS.length - 1, Math.floor(p * PROJECTS.length)); if (i !== gIndex) setIndex(i, true); } }, { passive: true });
+
+
+/* ── shared helpers ── */
+function envFor(r, scene) { const pm = new THREE.PMREMGenerator(r); scene.environment = pm.fromScene(new RoomEnvironment(), .04).texture; }
+const metal = (o = {}) => new THREE.MeshPhysicalMaterial({ color: 0xe3cfa8, metalness: 1, roughness: .16, clearcoat: 1, clearcoatRoughness: .06, ...o });
+function label(text, color = '#6a6a6a', size = 46, font = 'Inter', weight = 400) {
+  const c = document.createElement('canvas'), x = c.getContext('2d'), s = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, depthWrite: false, toneMapped: false }));
+  s.userData.draw = (col = color) => { x.font = `${weight} ${size}px ${font}`; c.width = Math.ceil(x.measureText(text).width) + 24; c.height = size + 24;
+    x.font = `${weight} ${size}px ${font}`; x.fillStyle = col; x.textBaseline = 'middle'; x.fillText(text, 12, c.height / 2);
+    s.material.map?.dispose(); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; s.material.map = t; s.material.needsUpdate = true; s.scale.set(c.width / 480, c.height / 480, 1); };
+  s.userData.draw(); document.fonts.ready.then(() => s.userData.draw()); return s;
+}
+function loop(canvas, renderer, camera, scene, step) { // renders only while on screen; one still frame when motion is reduced or paused
+  let vis = false, t = 0, last = performance.now(), dirty = true;
+  new IntersectionObserver(([e]) => { vis = e.isIntersecting; }).observe(canvas);
+  const size = () => { const w = canvas.clientWidth, h = canvas.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); dirty = true; };
+  addEventListener('resize', size); size();
+  const api = { paused: reduced, poke() { dirty = true; } };
+  (function f(now) { const dt = Math.min((now - last) / 1000, .05); last = now;
+    if (vis && (!api.paused || dirty)) { if (!api.paused) t += dt; step(t, dt); renderer.render(scene, camera); dirty = false; }
+    requestAnimationFrame(f); })(last);
+  return api;
+}
+
+/* ── Stack (hero) ── */
+function startStack() {
+  const canvas = document.getElementById('stackGL'), scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(35, 1, .1, 100);
+  camera.position.set(0, 0, mobile() ? 10.5 : 8.6); envFor(rStack, scene);
+  const key = new THREE.DirectionalLight(0xffffff, 2); key.position.set(3, 4, 5); scene.add(key);
+  const g = new THREE.Group(); scene.add(g); const byId = {}, nodeMeshes = [];
+  NODES.forEach(([id, name, short, x, y, z]) => {
+    const big = id === 'net', m = new THREE.Mesh(new THREE.SphereGeometry(big ? .34 : .17, 64, 64), metal(big ? {} : { roughness: .22 }));
+    m.position.set(x, y, z); m.userData.id = id; g.add(m); nodeMeshes.push(m);
+    const l = label(mobile() ? short : name); l.position.set(x, y + (big ? .5 : .3), z); g.add(l);
+    byId[id] = { m, l, links: [] };
+  });
+  const pulses = LINKS.map(([a, b], i) => {
+    const A = byId[a].m.position, B = byId[b].m.position, mid = A.clone().add(B).multiplyScalar(.5).add(new THREE.Vector3(0, .25, .35));
+    const curve = new THREE.QuadraticBezierCurve3(A.clone(), mid, B.clone());
+    const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 48, .007, 6), new THREE.MeshBasicMaterial({ color: 0xb8b8b4, transparent: true, opacity: .85 })); g.add(tube);
+    const dot = new THREE.Mesh(new THREE.SphereGeometry(.045, 16, 16), new THREE.MeshBasicMaterial({ color: 0x9c8257 })); g.add(dot);
+    const L = { curve, tube, dot, off: i * .37, a, b }; byId[a].links.push(L); byId[b].links.push(L); return L;
+  });
+  // hover: highlight a part and its connections
+  const ray = new THREE.Raycaster(), mp = new THREE.Vector2(); let hover = null, mx = 0, my = 0;
+  canvas.style.pointerEvents = 'auto';
+  canvas.addEventListener('pointermove', e => { const r = canvas.getBoundingClientRect(); mp.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height * 2 - 1)); mx = mp.x; my = mp.y;
+    ray.setFromCamera(mp, camera); const hit = ray.intersectObjects(nodeMeshes)[0]; const id = hit ? hit.object.userData.id : null;
+    if (id !== hover) { hover = id; canvas.style.cursor = id ? 'pointer' : 'default';
+      pulses.forEach(L => { const on = !id || L.a === id || L.b === id; L.tube.material.color.set(id && on ? 0x8a6d43 : 0xb8b8b4); L.tube.material.opacity = on ? .9 : .25; L.dot.visible = on; });
+      Object.entries(byId).forEach(([k, n]) => { const on = !id || k === id || n.links.some(L => L.a === id || L.b === id); n.l.material.opacity = on ? 1 : .3; n.l.userData.draw(k === id ? '#121212' : '#6a6a6a'); });
+      api.poke(); } });
+  canvas.addEventListener('pointerleave', () => { mx = my = 0; });
+  const api = loop(canvas, rStack, camera, scene, (t) => {
+    pulses.forEach(L => L.dot.position.copy(L.curve.getPointAt((t * .35 + L.off) % 1)));
+    g.rotation.y += ((Math.sin(t * .15) * .3 + mx * .25) - g.rotation.y) * .05; g.rotation.x += ((-my * .1) - g.rotation.x) * .05;
+    const fade = Math.min(1, scrollY / (innerHeight * .8)); g.position.y = fade * 1.2; canvas.style.opacity = 1 - fade * .85; // handover: drifts up and fades as you scroll to the work
+  });
+  const pb = document.getElementById('pause'); const lab = () => pb.textContent = api.paused ? 'Play motion' : 'Pause motion'; lab();
+  pb.onclick = () => { api.paused = !api.paused; api.poke(); lab(); };
+  addEventListener('scroll', () => api.poke(), { passive: true });
+}
+
+/* ── Gallery (projects) ── */
+function startGallery() {
+  const canvas = document.getElementById('galleryGL'), scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(35, 1, .1, 100);
+  const n = PROJECTS.length, R = 2.4; camera.position.set(0, .35, R + (mobile() ? 6.2 : 5)); camera.lookAt(0, 0, R - 1); envFor(rGal, scene);
+  { const l = new THREE.DirectionalLight(0xffffff, 1.6); l.position.set(2, 3, 8); scene.add(l); }
+  const ring = new THREE.Group(); scene.add(ring);
+  const draw = (x, p, i) => { x.fillStyle = '#f6f4ef'; x.fillRect(0, 0, 1200, 760); x.strokeStyle = '#9c8257'; x.lineWidth = 2; x.strokeRect(34, 34, 1132, 692);
+    x.fillStyle = '#8a6d43'; x.font = '500 26px Inter'; x.fillText(p.kind.toUpperCase(), 80, 120); x.font = '300 40px Inter'; x.fillText(String(i + 1).padStart(2, '0'), 1070, 125);
+    x.fillStyle = '#121212'; x.font = `300 ${p.title.length > 12 ? 104 : 140}px "Cormorant Garamond"`; x.fillText(p.title, 74, 340);
+    x.fillStyle = '#8a6d43'; x.fillRect(80, 390, 90, 2); x.fillStyle = '#6a6a6a'; x.font = '400 28px "JetBrains Mono"'; x.fillText(p.stack, 80, 650); };
+  const panels = PROJECTS.map((p, i) => { const c = document.createElement('canvas'); c.width = 1200; c.height = 760; draw(c.getContext('2d'), p, i);
+    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
+    const front = new THREE.MeshBasicMaterial({ map: tex, toneMapped: false, transparent: true }), edge = metal({ roughness: .25, transparent: true });
+    const m = new THREE.Mesh(new RoundedBoxGeometry(2.4, 1.52, .06, 4, .05), [edge, edge, edge, edge, front, edge]);
+    const a = i / n * Math.PI * 2; m.position.set(Math.sin(a) * R, 0, Math.cos(a) * R); m.rotation.y = a; m.userData = { i, redraw: () => { draw(c.getContext('2d'), p, i); tex.needsUpdate = true; } }; ring.add(m); return m; });
+  document.fonts.ready.then(() => { panels.forEach(m => m.userData.redraw()); api.poke(); });
+  const floor = new THREE.Mesh(new THREE.RingGeometry(R + .55, R + .565, 256), new THREE.MeshBasicMaterial({ color: 0x9c8257, transparent: true, opacity: .45, side: THREE.DoubleSide }));
+  floor.rotation.x = -Math.PI / 2; floor.position.y = -1.0; ring.add(floor);
+  // click a panel to bring it forward; drag sideways on phones
+  const ray = new THREE.Raycaster(), mp = new THREE.Vector2(); let downX = null;
+  canvas.addEventListener('pointerdown', e => { downX = e.clientX; });
+  canvas.addEventListener('pointerup', e => { const dx = e.clientX - downX; if (Math.abs(dx) > 40) { setIndex(gIndex + (dx < 0 ? 1 : -1)); return; }
+    const r = canvas.getBoundingClientRect(); mp.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height * 2 - 1)); ray.setFromCamera(mp, camera);
+    const hit = ray.intersectObjects(panels)[0]; if (hit) setIndex(hit.object.userData.i); });
+  let rot = 0;
+  const api = loop(canvas, rGal, camera, scene, (t) => {
+    const target = -gIndex / n * Math.PI * 2; rot += (target - rot) * (reduced ? 1 : .07);
+    ring.rotation.y = rot + (reduced ? 0 : Math.sin(t * .5) * .03);
+    panels.forEach(m => { const f = Math.max(0, Math.cos(m.userData.i / n * Math.PI * 2 + ring.rotation.y)); const o = .12 + .88 * Math.pow(f, 2.5); m.material.forEach(mm => mm.opacity = o); });
+  });
+  api.paused = false; // the gallery always eases to the chosen panel; with reduced motion it snaps instead (see above)
+  const poke = () => api.poke(); ['prev', 'next'].forEach(id => document.getElementById(id).addEventListener('click', poke)); addEventListener('scroll', poke, { passive: true });
+}
+
+/* ── no-WebGL fallback for the Stack: the same parts and links as a still SVG diagram ── */
+function drawStackSVG() {
+  const s = document.getElementById('stackSVG'), P = id => { const n = NODES.find(n => n[0] === id); return [300 + n[3] * 120, 260 - n[4] * 105]; };
+  let h = '';
+  LINKS.forEach(([a, b]) => { const [x1, y1] = P(a), [x2, y2] = P(b); h += `<path d="M${x1} ${y1} Q${(x1 + x2) / 2} ${(y1 + y2) / 2 - 24} ${x2} ${y2}" fill="none" stroke="#b8b8b4" stroke-width="1.2"/>`; });
+  NODES.forEach(([id, name]) => { const [x, y] = P(id), r = id === 'net' ? 14 : 7; h += `<circle cx="${x}" cy="${y}" r="${r}" fill="#e3cfa8" stroke="#9c8257"/><text x="${x}" y="${y - r - 8}" text-anchor="middle" font-family="Inter" font-size="13" fill="#6a6a6a">${name}</text>`; });
+  s.innerHTML = `<title>The stack I work in at Albhadreen</title>${h}`;
+}
+if (rStack && rGal) { startStack(); startGallery(); } // start last, after every helper above is defined
+</script>
+</body>
+</html>

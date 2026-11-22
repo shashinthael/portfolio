@@ -1,0 +1,742 @@
+<!doctype html>
+<!--
+  PROTOTYPE — throwaway. Second round for the ticket "Visual identity" (.scratch/portfolio/issues/04-visual-identity.md),
+  after he asked for "more luxury modern 3D animation".
+  Plan: four luxury directions, each with a LIVE three.js scene (mouse + scroll driven), switchable via ?v=I|J|K|L.
+  All text a Reader needs stays in HTML (Scan test). Motion respects prefers-reduced-motion and has a Pause button.
+  The 3D here is a mood sample, not the decided Signature moment (that's its own ticket).
+  Needs internet (three.js and fonts from CDNs). Open: `open prototypes/visual-identity/luxury.html`.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PROTOTYPE · Luxury 3D directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+} }
+</script>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font-family: Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  a { color: inherit; }
+  #gl { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 0; display: block; }
+  .no3d #gl { display: none; }
+  [data-v] { display: none; position: relative; z-index: 1; }
+  [data-v].on { display: block; }
+  body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 5; opacity: .07; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .rv { opacity: 0; transform: translateY(26px); transition: opacity 1.4s cubic-bezier(.2,.7,.1,1), transform 1.4s cubic-bezier(.2,.7,.1,1); }
+  .rv.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .rv { opacity: 1; transform: none; transition: none; } }
+
+  /* ═════════ I · Maison (noir & gold) ═════════ */
+  body.I { --bg: radial-gradient(1100px 800px at 72% 40%, #1d1710 0%, #0a0908 55%, #050505 100%); --ink: #f1eadc; --gold: #c9a96e; --dim: #a59a88; --rule: #3a3226; --lede: #cfc6b6; --line: #5a4f3f; --panel: rgba(8,7,6,.55); --row1: rgba(5,5,5,.7); --row2: rgba(5,5,5,.2); --onGold: #0a0908;
+           background: var(--bg) fixed; color: var(--ink); }
+  /* light tones (round 4: "Maison good, can you change its light colors") */
+  body.I.ivory     { --bg: radial-gradient(1100px 800px at 72% 40%, #fffdf8 0%, #f5eee2 55%, #ebe1cf 100%); --ink: #1d1a15; --gold: #8c6a2c; --dim: #6f6556; --rule: #d8ccb6; --lede: #4a4237; --line: #b9a888; --panel: rgba(255,253,248,.62); --row1: rgba(255,252,246,.8); --row2: rgba(255,252,246,.25); --onGold: #fffdf8; }
+  body.I.porcelain { --bg: radial-gradient(1100px 800px at 72% 40%, #ffffff 0%, #f3f3f1 55%, #e6e6e3 100%); --ink: #121212; --gold: #8a6d43; --dim: #6a6a6a; --rule: #d9d9d6; --lede: #434343; --line: #b8b8b4; --panel: rgba(255,255,255,.62); --row1: rgba(255,255,255,.8); --row2: rgba(255,255,255,.25); --onGold: #ffffff; }
+  body.I.rose      { --bg: radial-gradient(1100px 800px at 72% 40%, #fbf3ee 0%, #f1e2d8 55%, #e6d0c2 100%); --ink: #2a1d18; --gold: #9a5a43; --dim: #7a6158; --rule: #dcc3b5; --lede: #4f3a32; --line: #c49d8c; --panel: rgba(251,243,238,.62); --row1: rgba(251,243,238,.8); --row2: rgba(251,243,238,.25); --onGold: #fbf3ee; }
+  .vI { }
+  .vI .top { position: fixed; top: 0; left: 0; right: 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 26px 48px; font: 500 11px Inter; letter-spacing: 2.4px; text-transform: uppercase; z-index: 3; }
+  .vI .top nav { display: flex; gap: 30px; } .vI .top nav:last-child { justify-content: flex-end; }
+  .vI .top a { text-decoration: none; color: var(--dim); } .vI .top a:hover { color: var(--gold); }
+  .vI .mono { font: 400 26px "Cormorant Garamond"; letter-spacing: 4px; color: var(--gold); }
+  .vI .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 48px 9vh; max-width: 760px; }
+  .vI .eyebrow { font: 500 11px Inter; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin: 0 0 22px; }
+  .vI h1 { font: 300 clamp(56px, 8.4vw, 132px)/.9 "Cormorant Garamond", serif; margin: 0; letter-spacing: -1.5px; }
+  .vI h1 em { font-style: italic; color: var(--gold); padding-left: .6em; }
+  .vI .lede { font: 300 17px/1.75 Inter; color: var(--lede); max-width: 46ch; margin: 30px 0 0; }
+  .vI .ctas { display: flex; gap: 28px; margin-top: 34px; align-items: center; }
+  .vI .btn { text-decoration: none; padding: 16px 30px; border: 1px solid var(--gold); color: var(--gold); font: 500 11px Inter; letter-spacing: 2.4px; text-transform: uppercase; transition: background .4s, color .4s; }
+  .vI .btn:hover, .vI .btn.p { background: var(--gold); color: var(--onGold); }
+  .vI .link { font: 500 11px Inter; letter-spacing: 2.4px; text-transform: uppercase; text-decoration: none; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+  .vI .facts { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin: 0 48px; background: var(--panel); backdrop-filter: blur(6px); }
+  .vI .facts div { padding: 26px 22px; border-left: 1px solid var(--rule); } .vI .facts div:first-child { border-left: 0; }
+  .vI .facts dt { font: 500 10px Inter; letter-spacing: 2.4px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+  .vI .facts dd { margin: 0; font: 400 21px/1.3 "Cormorant Garamond"; }
+  .vI .work { padding: 18vh 48px 10vh; }
+  .vI h2 { font: 300 64px "Cormorant Garamond"; margin: 0 0 56px; display: flex; gap: 26px; align-items: baseline; }
+  .vI h2 span { font: 500 11px Inter; letter-spacing: 2.4px; color: var(--gold); }
+  .vI .proj { display: grid; grid-template-columns: 90px 1.1fr 1.3fr 220px; gap: 34px; padding: 40px 0; border-top: 1px solid var(--rule); background: linear-gradient(90deg, var(--row1), var(--row2)); }
+  .vI .proj .n { font: italic 300 44px "Cormorant Garamond"; color: var(--gold); }
+  .vI .proj h3 { font: 400 46px/1 "Cormorant Garamond"; margin: 0 0 10px; }
+  .vI .proj .k { font: 500 10px Inter; letter-spacing: 2.2px; text-transform: uppercase; color: var(--dim); }
+  .vI .proj p { font: 300 15.5px/1.75 Inter; color: var(--lede); margin: 0; }
+  .vI .proj .st { font: 400 12px/1.9 "JetBrains Mono"; color: var(--dim); }
+  .vI .foot { padding: 12vh 48px 16vh; text-align: center; }
+  .vI .foot p { font: italic 300 clamp(40px, 5vw, 76px) "Cormorant Garamond"; margin: 0 0 30px; }
+  @media (max-width: 760px) {
+    .vI .top { padding: 18px 20px; grid-template-columns: auto 1fr; } .vI .top nav:first-child { display: none; }
+    .vI .hero { padding: 0 22px 8vh; } .vI .lede { font-size: 15.5px; }
+    .vI .facts { grid-template-columns: 1fr 1fr; margin: 0 16px; } .vI .facts div:nth-child(3) { border-left: 0; } .vI .facts div:nth-child(n+3) { border-top: 1px solid var(--rule); }
+    .vI .work { padding: 12vh 20px 6vh; } .vI h2 { font-size: 44px; }
+    .vI .proj { grid-template-columns: 1fr; gap: 12px; }
+  }
+
+  /* ═════════ J · Atelier (ivory, pearl & glass) ═════════ */
+  body.J { background: radial-gradient(1000px 700px at 50% 35%, #fbf8f2 0%, #efe8dc 70%, #e7ddcd 100%) fixed; color: #1c1813; }
+  .vJ { --bronze: #8a6a3b; --dim: #7a6e5f; }
+  .vJ .top { position: fixed; inset: 0 0 auto 0; display: flex; justify-content: space-between; padding: 26px 44px; font: 400 15px "Bodoni Moda"; z-index: 3; }
+  .vJ .top span:last-child { font: italic 400 15px "Bodoni Moda"; color: var(--dim); }
+  .vJ .hero { min-height: 100vh; display: grid; place-items: center; text-align: center; padding: 0 24px; }
+  .vJ .eyebrow { font: 500 10.5px Inter; letter-spacing: 3.4px; text-transform: uppercase; color: var(--bronze); }
+  .vJ h1 { font: 400 clamp(54px, 9vw, 150px)/.92 "Bodoni Moda", serif; margin: 24px 0; letter-spacing: -2px; }
+  .vJ h1 i { font-weight: 400; }
+  .vJ .sub { font: 300 18px/1.7 Inter; color: #4a4137; max-width: 52ch; margin: 0 auto; }
+  .vJ .line { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px 26px; margin-top: 34px; font: 400 13px Inter; color: #3a3229; }
+  .vJ .line b { font-weight: 500; color: var(--bronze); letter-spacing: 1.6px; text-transform: uppercase; font-size: 10px; margin-right: 6px; }
+  .vJ .ctas { margin-top: 40px; display: flex; gap: 36px; justify-content: center; }
+  .vJ .ctas a { font: italic 400 20px "Bodoni Moda"; text-decoration: none; border-bottom: 1px solid #1c1813; padding-bottom: 3px; }
+  .vJ .ctas a.p { color: var(--bronze); border-color: var(--bronze); }
+  .vJ .work { padding: 14vh 6vw 18vh; }
+  .vJ h2 { text-align: center; font: italic 400 54px "Bodoni Moda"; margin: 0 0 70px; }
+  .vJ .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 5vw; max-width: 1180px; margin: 0 auto; }
+  .vJ .card { background: rgba(251,248,242,.72); backdrop-filter: blur(14px); border: 1px solid rgba(138,106,59,.25); padding: 22px; }
+  .vJ .card .img { aspect-ratio: 4/5; background: linear-gradient(160deg, #e9dfcf, #d8c8ad); display: grid; place-items: center; font: 400 11px "JetBrains Mono"; color: var(--dim); }
+  .vJ .card .meta { display: flex; justify-content: space-between; margin-top: 22px; font: 500 10px Inter; letter-spacing: 2.4px; text-transform: uppercase; color: var(--bronze); }
+  .vJ .card h3 { font: 400 40px "Bodoni Moda"; margin: 10px 0; }
+  .vJ .card p { font: 300 15px/1.75 Inter; color: #4a4137; margin: 0; }
+  @media (max-width: 760px) { .vJ .top { padding: 18px 20px; font-size: 13px; } .vJ .sub { font-size: 15.5px; } .vJ .cards { grid-template-columns: 1fr; } .vJ h2 { font-size: 40px; margin-bottom: 40px; } }
+
+  /* ═════════ K · Nocturne (midnight particles) ═════════ */
+  body.K { background: radial-gradient(1200px 900px at 50% 45%, #0b1222 0%, #04060c 60%, #020308 100%) fixed; color: #dfe4ee; }
+  .vK { --champ: #e6cf9f; --dim: #7f8aa0; }
+  .vK .top { position: fixed; inset: 0 0 auto 0; display: flex; justify-content: space-between; padding: 26px 40px; font: 500 10.5px Inter; letter-spacing: 3px; text-transform: uppercase; z-index: 3; }
+  .vK .top .av { color: var(--dim); } .vK .top .av i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--champ); margin-right: 10px; box-shadow: 0 0 12px var(--champ); vertical-align: middle; }
+  .vK .hero { min-height: 100vh; position: relative; }
+  .vK .state { position: absolute; left: 40px; bottom: 10vh; max-width: 640px; }
+  .vK .state p { font: 300 clamp(34px, 4.4vw, 66px)/1.05 "Cormorant Garamond"; margin: 0; }
+  .vK .state p em { color: var(--champ); }
+  .vK .state .ctas { margin-top: 28px; display: flex; gap: 14px; }
+  .vK .state a { text-decoration: none; font: 500 10.5px Inter; letter-spacing: 2.6px; text-transform: uppercase; padding: 15px 24px; border: 1px solid rgba(230,207,159,.4); border-radius: 999px; backdrop-filter: blur(8px); }
+  .vK .state a.p { background: var(--champ); color: #05070d; border-color: var(--champ); }
+  .vK .credits { position: absolute; right: 40px; bottom: 10vh; font: 400 12px/2.1 "JetBrains Mono"; text-align: right; }
+  .vK .credits span { color: var(--dim); display: inline-block; min-width: 120px; text-align: left; }
+  .vK .credits b { font-weight: 400; color: var(--champ); }
+  .vK .credits h1 { font: 500 12px "JetBrains Mono"; margin: 0; letter-spacing: 0; }
+  .vK .work { padding: 40vh 40px 30vh; max-width: 1100px; margin-left: auto; }
+  .vK h2 { font: 500 10.5px Inter; letter-spacing: 3px; text-transform: uppercase; color: var(--dim); margin: 0 0 30px; }
+  .vK .row { display: grid; grid-template-columns: 60px 1fr auto; gap: 26px; align-items: baseline; padding: 30px 0; border-top: 1px solid rgba(223,228,238,.12); background: linear-gradient(90deg, rgba(2,3,8,0), rgba(2,3,8,.6)); }
+  .vK .row .n { font: 400 12px "JetBrains Mono"; color: var(--champ); }
+  .vK .row h3 { font: 300 58px/1 "Cormorant Garamond"; margin: 0 0 12px; }
+  .vK .row p { font: 300 15px/1.7 Inter; color: #aab3c4; margin: 0; max-width: 58ch; }
+  .vK .row .st { font: 400 11.5px/1.9 "JetBrains Mono"; color: var(--dim); text-align: right; }
+  .vK .note { margin-top: 40px; font: italic 300 22px "Cormorant Garamond"; color: var(--dim); }
+  @media (max-width: 760px) {
+    .vK .top { padding: 18px 20px; font-size: 9.5px; letter-spacing: 2px; }
+    .vK .state { left: 20px; right: 20px; bottom: 30vh; } .vK .credits { left: 20px; right: auto; text-align: left; bottom: 4vh; font-size: 11px; line-height: 1.9; }
+    .vK .credits span { min-width: 104px; }
+    .vK .work { padding: 30vh 20px 20vh; } .vK .row { grid-template-columns: 1fr; gap: 8px; } .vK .row .st { text-align: left; } .vK .row h3 { font-size: 42px; }
+  }
+
+  /* ═════════ L · Gallery (obsidian & emerald, projects as 3D panels) ═════════ */
+  body.L { background: radial-gradient(1000px 800px at 68% 50%, #0f1f19 0%, #070a09 60%, #040505 100%) fixed; color: #ecefe9; }
+  .vL { --em: #4fd1a1; --gold: #d6b87a; --dim: #8c9b94; }
+  .vL .side { position: fixed; top: 0; left: 0; bottom: 0; width: 38vw; max-width: 560px; padding: 40px 0 40px 48px; display: flex; flex-direction: column; justify-content: space-between; z-index: 3; }
+  .vL .brand { font: 500 10.5px Inter; letter-spacing: 3px; text-transform: uppercase; color: var(--dim); }
+  .vL h1 { font: 300 clamp(48px, 5.4vw, 88px)/.95 "Cormorant Garamond"; margin: 0 0 18px; letter-spacing: -1px; }
+  .vL h1 em { color: var(--em); }
+  .vL .role { font: 400 15px/1.6 Inter; color: #b9c4bf; max-width: 38ch; }
+  .vL dl { display: grid; grid-template-columns: auto 1fr; gap: 12px 22px; margin: 30px 0 0; font-size: 13.5px; }
+  .vL dt { font: 500 10px Inter; letter-spacing: 2.2px; text-transform: uppercase; color: var(--dim); padding-top: 3px; }
+  .vL dd { margin: 0; } .vL dd.g { color: var(--gold); }
+  .vL .ctas { display: flex; gap: 12px; margin-top: 30px; flex-wrap: wrap; }
+  .vL .ctas a { text-decoration: none; font: 500 11px Inter; letter-spacing: 2px; text-transform: uppercase; padding: 14px 22px; border: 1px solid rgba(79,209,161,.45); }
+  .vL .ctas a.p { background: var(--em); color: #04120c; border-color: var(--em); }
+  .vL .hint { font: 400 11px "JetBrains Mono"; color: var(--dim); }
+  .vL .hint b { color: var(--em); font-weight: 400; }
+  .vL .scroller { height: 520vh; }
+  .vL .list { position: absolute; left: -9999px; } /* the same projects as accessible HTML, read by screen readers */
+  .vL .count { position: fixed; right: 48px; bottom: 40px; font: 200 56px Inter; letter-spacing: -2px; z-index: 3; }
+  .vL .side { background: linear-gradient(90deg, rgba(4,5,5,.92) 0%, rgba(4,5,5,.75) 70%, rgba(4,5,5,0) 100%); padding-right: 60px; }
+  .vL .count small { font: 400 12px "JetBrains Mono"; color: var(--dim); margin-left: 8px; }
+  @media (max-width: 760px) {
+    .vL .side { position: absolute; top: auto; bottom: auto; left: 0; right: 0; width: auto; max-width: none; padding: 58vh 20px 0; }
+    .vL .scroller { height: 360vh; } .vL .count { right: 20px; bottom: 20px; font-size: 44px; }
+    .vL .hint { margin-top: 24px; }
+  }
+
+  /* no-WebGL fallback: a still, static glow instead of the scene */
+  .no3d.I .hero { background: radial-gradient(500px 500px at 75% 45%, rgba(201,169,110,.25), transparent 70%); }
+  .no3d.K .hero { background: radial-gradient(420px 420px at 50% 42%, rgba(230,207,159,.18), transparent 70%); }
+
+  /* ═════════ Prototype switcher (not part of any design) ═════════ */
+  #switch { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 99; display: flex; align-items: center; gap: 2px; background: #ff0; color: #000; border: 2px solid #000; border-radius: 999px; padding: 5px; font: 600 13px/1 -apple-system, system-ui, sans-serif; box-shadow: 0 6px 24px rgba(0,0,0,.35); white-space: nowrap; }
+  #switch button, #switch a { all: unset; cursor: pointer; padding: 8px 11px; border-radius: 999px; }
+  #switch button:hover, #switch a:hover { background: rgba(0,0,0,.1); }
+  #switch #lbl { padding: 0 8px; min-width: 200px; text-align: center; }
+  #switch:has(.row2) { flex-wrap: wrap; justify-content: center; border-radius: 22px; max-width: 94vw; }
+  #switch .row2 { flex-basis: 100%; display: flex; justify-content: center; align-items: center; border-top: 1px solid rgba(0,0,0,.2); margin-top: 4px; padding-top: 3px; }
+  #switch .tone { font-weight: 500; padding: 8px 9px; }
+  #switch .sep { width: 1px; height: 18px; background: rgba(0,0,0,.25); margin: 0 4px; }
+  #switch .on { background: #000 !important; color: #ff0; }
+  body.phoneview { background: #777 !important; }
+  body.phoneview iframe { display: block; width: 390px; height: 844px; border: 0; border-radius: 30px; margin: 26px auto; box-shadow: 0 20px 60px rgba(0,0,0,.5); background: #000; }
+</style>
+</head>
+<body>
+<canvas id="gl" aria-hidden="true"></canvas>
+
+<!-- ═════════ I · Maison ═════════ -->
+<main class="vI" data-v="I" data-name="Maison · noir & gold">
+  <header class="top"><nav><a href="#">Work</a><a href="#">Experience</a></nav><div class="mono">S·E</div><nav><a href="#">Contact</a><a href="#">CV</a></nav></header>
+  <section class="hero">
+    <p class="eyebrow rv">Full Stack Developer · AI &amp; LLM Applications</p>
+    <h1 class="rv">Shashintha<br><em>Edirisooriya</em></h1>
+    <p class="lede rv">I build .NET microservices, React front ends and the pipelines that ship them to Azure, and I'm helping my team experiment with agentic AI.</p>
+    <div class="ctas rv"><a class="btn p" href="#">Download CV</a><a class="link" href="#">Get in touch</a></div>
+  </section>
+  <dl class="facts rv">
+    <div><dt>Now</dt><dd>Intermediate Full Stack Developer, Albhadreen</dd></div>
+    <div><dt>Stack</dt><dd>C#, .NET, React, TypeScript, Python, Azure</dd></div>
+    <div><dt>Based</dt><dd>London · hybrid, remote or relocation</dd></div>
+    <div><dt>Right to work</dt><dd>UK Graduate visa, valid to Nov 2028</dd></div>
+  </dl>
+  <section class="work">
+    <h2 class="rv"><span>01</span>Selected work</h2>
+    <article class="proj rv">
+      <div class="n">i.</div>
+      <div><h3>Zeylan</h3><div class="k">Personal project · 2026 · <a href="#">Live ↗</a></div></div>
+      <p>A trip planner for Sri Lanka holidays. Visitors choose who's travelling, how long and a comfort level, then see a price estimate and the best route on a 3D island.</p>
+      <div class="st">TypeScript · Astro<br>three.js<br>Cloudflare Workers · D1</div>
+    </article>
+    <article class="proj rv">
+      <div class="n">ii.</div>
+      <div><h3>AXD-Fraud</h3><div class="k">MSc dissertation · 2026</div></div>
+      <p>Fraud detection with a neural network, SHAP explanations for each prediction, and my own drift-detection algorithm. The best model reached an F1-score of 0.82.</p>
+      <div class="st">Python · TensorFlow<br>SHAP · Flask<br>React</div>
+    </article>
+  </section>
+  <footer class="foot"><p class="rv">Let's build something.</p><a class="btn rv" href="#">Email me</a></footer>
+</main>
+
+<!-- ═════════ J · Atelier ═════════ -->
+<main class="vJ" data-v="J" data-name="Atelier · ivory, pearl & glass">
+  <header class="top"><span>S. Edirisooriya</span><span>Portfolio, 2026</span></header>
+  <section class="hero"><div>
+    <div class="eyebrow rv">Full Stack Developer · AI &amp; LLM Applications</div>
+    <h1 class="rv">Shashintha<br><i>Edirisooriya</i></h1>
+    <p class="sub rv">.NET microservices, React front ends and Azure, at Albhadreen. Now helping my team experiment with agentic AI.</p>
+    <div class="line rv"><span><b>Based</b>London</span><span><b>Right to work</b>UK, valid to Nov 2028</span><span><b>Stack</b>C# · .NET · React · TypeScript · Python · Azure</span></div>
+    <div class="ctas rv"><a class="p" href="#">Download CV</a><a href="#">Get in touch</a></div>
+  </div></section>
+  <section class="work">
+    <h2 class="rv">Selected work</h2>
+    <div class="cards">
+      <article class="card rv"><div class="img">screenshot</div><div class="meta"><span>Personal project</span><span>2026</span></div><h3>Zeylan</h3><p>A trip planner for Sri Lanka holidays, with the best route drawn on a 3D island. Astro, three.js and Cloudflare Workers.</p></article>
+      <article class="card rv"><div class="img">SHAP plot</div><div class="meta"><span>MSc dissertation</span><span>2026</span></div><h3>AXD-Fraud</h3><p>Fraud detection with a neural network, SHAP explanations and my own drift detector. Best F1-score: 0.82.</p></article>
+    </div>
+  </section>
+</main>
+
+<!-- ═════════ K · Nocturne ═════════ -->
+<main class="vK" data-v="K" data-name="Nocturne · midnight particles">
+  <header class="top"><span>Shashintha Edirisooriya</span><span class="av"><i></i>Open to Full Stack &amp; AI/LLM roles</span></header>
+  <section class="hero">
+    <div class="state rv">
+      <p>From a rough prototype to something <em>deployed</em> and <em>monitored</em>.</p>
+      <div class="ctas"><a class="p" href="#">Download CV</a><a href="#">Contact</a></div>
+    </div>
+    <div class="credits rv">
+      <h1><span>Name</span>Shashintha Edirisooriya</h1>
+      <div><span>Role</span>Full Stack · AI &amp; LLM Applications</div>
+      <div><span>Now</span>Albhadreen, remote from London</div>
+      <div><span>Stack</span>C# .NET React TS Python Azure</div>
+      <div><span>Right to work</span><b>UK, valid to Nov 2028</b></div>
+    </div>
+  </section>
+  <section class="work">
+    <h2 class="rv">Selected work · scroll to reshape</h2>
+    <article class="row rv"><div class="n">01</div><div><h3>Zeylan</h3><p>A trip planner for Sri Lanka holidays: pick who's travelling, how long and a comfort level, and see a price estimate and the best route on a 3D island.</p></div><div class="st">Astro · three.js<br>Workers · D1<br>2026</div></article>
+    <article class="row rv"><div class="n">02</div><div><h3>AXD-Fraud</h3><p>Fraud detection with a neural network, SHAP explanations and my own drift-detection algorithm. Best F1-score: 0.82.</p></div><div class="st">Python · TensorFlow<br>SHAP · Flask<br>2026</div></article>
+    <article class="row rv"><div class="n">03</div><div><h3>Edirisooriya Stores</h3><p>A shop system for a market store: a counter POS, the owner's iPhone app and a cloud copy.</p></div><div class="st">Electron · React<br>SQLite · Supabase<br>2026</div></article>
+    <p class="note rv">The particles become a sphere, then a double helix, then a field as you scroll.</p>
+  </section>
+</main>
+
+<!-- ═════════ L · Gallery ═════════ -->
+<main class="vL" data-v="L" data-name="Gallery · obsidian & emerald">
+  <aside class="side">
+    <div class="brand rv">Portfolio · 2026</div>
+    <div>
+      <h1 class="rv">Shashintha<br><em>Edirisooriya</em></h1>
+      <p class="role rv">Full Stack Developer · AI &amp; LLM Applications. .NET microservices, React and Azure at Albhadreen.</p>
+      <dl class="rv">
+        <dt>Stack</dt><dd>C#, .NET, React, TypeScript, Python, Azure</dd>
+        <dt>Based</dt><dd>London · hybrid, remote or relocation</dd>
+        <dt>Right to work</dt><dd class="g">UK Graduate visa, valid to Nov 2028</dd>
+      </dl>
+      <div class="ctas rv"><a class="p" href="#">Download CV</a><a href="#">Contact</a></div>
+    </div>
+    <div class="hint rv"><b>↓</b> Scroll to turn the gallery · drag-free</div>
+  </aside>
+  <div class="count"><span id="lcount">01</span><small>/ 05</small></div>
+  <div class="scroller"></div>
+  <ol class="list"><li>Zeylan</li><li>AXD-Fraud</li><li>Edirisooriya Stores</li><li>Kivorana</li><li>Archive</li></ol>
+</main>
+
+<div id="switch" aria-label="Prototype switcher">
+  <a href="index.html" title="Back to the first eight directions">A–H</a>
+  <button id="prev" title="Previous (←)">◀</button>
+  <span id="lbl"></span>
+  <button id="next" title="Next (→)">▶</button>
+  <button id="pause" title="Pause or play the motion">❚❚ Pause</button>
+  <button id="ph" title="Phone width">📱</button>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+const KEYS = ['I', 'J', 'K', 'L'];
+const params = new URLSearchParams(location.search);
+const V = KEYS.includes(params.get('v')) ? params.get('v') : 'I';
+const inFrame = window !== window.top;
+const TONES = { noir: 'Noir', ivory: 'Ivory', porcelain: 'Porcelain', rose: 'Rosé' };
+const TONE = V === 'I' && TONES[params.get('tone')] ? params.get('tone') : 'porcelain'; // Porcelain chosen 2026-11-22
+const SCENES = { knot: 'Knot', liquid: 'Liquid', stack: 'Stack', globe: 'Globe', gallery: 'Gallery', particles: 'Particles' };
+const SCENE = V === 'I' && SCENES[params.get('scene')] ? params.get('scene') : 'knot';
+const go = (v, phone, tone, sc) => { const p = new URLSearchParams({ v }); if (v === 'I') { p.set('tone', tone || TONE); p.set('scene', sc || SCENE); } if (phone) p.set('w', 'phone'); location.search = p; };
+
+// switcher
+const sw = document.getElementById('switch');
+if (inFrame) sw.remove();
+else {
+  const sec = document.querySelector(`[data-v="${V}"]`);
+  document.getElementById('lbl').textContent = V === 'I' ? 'I · Maison' : `${V} · ${sec.dataset.name}`;
+  const step = d => go(KEYS[(KEYS.indexOf(V) + d + KEYS.length) % KEYS.length], params.get('w') === 'phone');
+  document.getElementById('prev').onclick = () => step(-1);
+  document.getElementById('next').onclick = () => step(1);
+  document.getElementById('ph').onclick = () => go(V, params.get('w') !== 'phone', TONE);
+  if (V === 'I') { // tone chips for Maison
+    const sep = document.createElement('span'); sep.className = 'sep'; document.getElementById('next').after(sep);
+    let after = sep;
+    Object.entries(TONES).forEach(([k, name]) => { const b = document.createElement('button'); b.className = 'tone' + (k === TONE ? ' on' : ''); b.textContent = name;
+      b.onclick = () => go('I', params.get('w') === 'phone', k); after.after(b); after = b; });
+    const row = document.createElement('div'); row.className = 'row2'; sw.appendChild(row);
+    const lab = document.createElement('span'); lab.textContent = '3D:'; lab.style.padding = '0 6px'; row.appendChild(lab);
+    Object.entries(SCENES).forEach(([k, name]) => { const b = document.createElement('button'); b.className = 'tone' + (k === SCENE ? ' on' : ''); b.textContent = name;
+      b.onclick = () => go('I', params.get('w') === 'phone', TONE, k); row.appendChild(b); });
+  }
+  addEventListener('keydown', e => { if (e.key === 'ArrowLeft') step(-1); if (e.key === 'ArrowRight') step(1); });
+  if (params.get('w') === 'phone') {
+    document.getElementById('ph').classList.add('on');
+    document.getElementById('pause').remove();
+    document.body.className = 'phoneview';
+    [...document.body.children].forEach(el => { if (el !== sw) el.remove(); });
+    const f = document.createElement('iframe'); f.src = `luxury.html?v=${V}${V === 'I' ? '&tone=' + TONE + '&scene=' + SCENE : ''}`; document.body.prepend(f);
+    throw new Error('phone view: the page runs inside the frame');
+  }
+}
+
+document.body.classList.add(V); if (V === 'I') document.body.classList.add(TONE);
+document.querySelector(`[data-v="${V}"]`).classList.add('on');
+
+// reveal text
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .12 });
+document.querySelectorAll(`[data-v="${V}"] .rv`).forEach((el, i) => { el.style.transitionDelay = `${Math.min(i, 6) * 0.12}s`; io.observe(el); });
+
+// WebGL
+let renderer;
+try { renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gl'), antialias: true, alpha: true, powerPreference: 'high-performance' }); }
+catch (e) { document.body.classList.add('no3d'); }
+if (renderer) start();
+
+function start() {
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+  camera.position.set(0, 0, 9);
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+  const mouse = { x: 0, y: 0, sx: 0, sy: 0 };
+  addEventListener('pointermove', e => { mouse.x = e.clientX / innerWidth * 2 - 1; mouse.y = -(e.clientY / innerHeight * 2 - 1); });
+  let scroll = 0, sScroll = 0;
+  const readScroll = () => { const max = document.documentElement.scrollHeight - innerHeight; scroll = max > 0 ? scrollY / max : 0; };
+  addEventListener('scroll', readScroll, { passive: true });
+
+  const mobile = () => innerWidth < 760;
+  const S = { I: maison, J: atelier, K: nocturne, L: gallery }[V](scene, camera, mobile);
+
+  function resize() {
+    renderer.setSize(innerWidth, innerHeight, false);
+    camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+    S.layout && S.layout(); readScroll();
+  }
+  addEventListener('resize', resize); resize();
+
+  let paused = reduced, t = 0, last = performance.now();
+  const pb = document.getElementById('pause');
+  const label = () => pb && (pb.textContent = paused ? '▶ Play' : '❚❚ Pause');
+  if (pb) { pb.onclick = () => { paused = !paused; label(); }; label(); }
+
+  function frame(now) {
+    const dt = Math.min((now - last) / 1000, 0.05); last = now;
+    if (!paused) t += dt;
+    const k = paused ? 1 : 1 - Math.pow(0.0015, dt);
+    mouse.sx += (mouse.x - mouse.sx) * k; mouse.sy += (mouse.y - mouse.sy) * k;
+    sScroll += (scroll - sScroll) * (paused ? 1 : 1 - Math.pow(0.002, dt));
+    S.update(t, sScroll, mouse.sx, mouse.sy);
+    renderer.render(scene, camera);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ───────── I · Maison: a gold liquid-metal sculpture with an orbiting ring and gold dust ───────── */
+function maison(scene, camera, mobile) {
+  const g = new THREE.Group(); scene.add(g);
+  const P = {
+    noir:      { metal: 0xd9b26f, ring: 0xc9a96e, dust: 0xe6c88f, dustOp: .7, key: 0xffe2b0, rim: 0xffb86b, exp: 1.0, ink: '#f1eadc', soft: '#a59a88', line: 0x5a4f3f, pt1: 0x9fb4d8, pt2: 0xf0d9a8, light: false },
+    ivory:     { metal: 0xd2a861, ring: 0xa9843f, dust: 0xb08a4a, dustOp: .55, key: 0xfff1d6, rim: 0xffc27a, exp: .92, ink: '#1d1a15', soft: '#6f6556', line: 0xb9a888, pt1: 0x5b4a33, pt2: 0xb08a4a, light: true },
+    porcelain: { metal: 0xe3cfa8, ring: 0x9c8257, dust: 0x9c8a6c, dustOp: .5, key: 0xffffff, rim: 0xf2dcc0, exp: .9, ink: '#121212', soft: '#6a6a6a', line: 0xb8b8b4, pt1: 0x2e2e2e, pt2: 0x9c7f52, light: true },
+    rose:      { metal: 0xe7ad8f, ring: 0xa8664c, dust: 0xb07a63, dustOp: .55, key: 0xffe6da, rim: 0xffa98a, exp: .92, ink: '#2a1d18', soft: '#7a6158', line: 0xc49d8c, pt1: 0x4a2f27, pt2: 0xb07a63, light: true },
+  }[TONE];
+  renderer.toneMappingExposure = P.exp;
+  const metal = (o = {}) => new THREE.MeshPhysicalMaterial({ color: P.metal, metalness: 1, roughness: .14, clearcoat: 1, clearcoatRoughness: .06, ...o });
+  const label = (text, size = 44, color = P.ink, weight = 500, font = 'Inter') => { // a text sprite, re-measured once the web font loads
+    const c = document.createElement('canvas'), x = c.getContext('2d');
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, depthWrite: false, toneMapped: false }));
+    s.userData.draw = () => {
+      x.font = `${weight} ${size}px ${font}`; c.width = Math.ceil(x.measureText(text).width) + 24; c.height = size + 24;
+      x.font = `${weight} ${size}px ${font}`; x.fillStyle = color; x.textBaseline = 'middle'; x.fillText(text, 12, c.height / 2);
+      if (s.material.map) s.material.map.dispose();
+      const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; s.material.map = tex; s.material.needsUpdate = true;
+      s.scale.set(c.width / 480, c.height / 480, 1);
+    };
+    s.userData.draw(); return s;
+  };
+  const sprites = [];
+  document.fonts.ready.then(() => sprites.forEach(s => s.userData.draw()));
+  if (P.light && SCENE !== 'gallery') { // a soft contact shadow so objects sit on the light page
+    const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d');
+    const gr = x.createRadialGradient(128, 128, 0, 128, 128, 128); gr.addColorStop(0, 'rgba(60,40,20,.3)'); gr.addColorStop(1, 'rgba(60,40,20,0)');
+    x.fillStyle = gr; x.fillRect(0, 0, 256, 256);
+    const sh = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 1.3), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false, toneMapped: false }));
+    sh.position.set(0, -2.2, -.4); sh.rotation.x = -1.2; g.add(sh);
+  }
+  const key = new THREE.DirectionalLight(P.key, 2.2); key.position.set(3, 4, 5); scene.add(key);
+  const rim = new THREE.PointLight(P.rim, 30, 12); rim.position.set(-3, -1, 2); scene.add(rim);
+
+  /* ── each scene builds into g and returns its own per-frame motion ── */
+  const scenes = {
+    knot() {
+      const knot = new THREE.Mesh(new THREE.TorusKnotGeometry(1.05, .34, 400, 64, 2, 3), metal()); g.add(knot);
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(2.35, .008, 16, 300), new THREE.MeshStandardMaterial({ color: P.ring, metalness: 1, roughness: .3 }));
+      ring.rotation.x = 1.25; g.add(ring); const ring2 = ring.clone(); ring2.scale.setScalar(1.18); ring2.rotation.set(1, .4, 0); g.add(ring2);
+      const n = 900, pos = new Float32Array(n * 3);
+      for (let i = 0; i < n; i++) { const r = 2.6 + Math.random() * 3.5, a = Math.random() * Math.PI * 2; pos.set([Math.cos(a) * r, (Math.random() - .5) * 6, Math.sin(a) * r - 1], i * 3); }
+      const dg = new THREE.BufferGeometry(); dg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      const dust = new THREE.Points(dg, new THREE.PointsMaterial({ color: P.dust, size: .022, transparent: true, opacity: P.dustOp, depthWrite: false })); g.add(dust);
+      return (t, p, mx, my) => { knot.rotation.x = t * .18 + p * 4 + my * .25; knot.rotation.y = t * .24 + mx * .5; ring.rotation.z = t * .12; ring2.rotation.z = -t * .08; dust.rotation.y = t * .02; };
+    },
+
+    liquid() { // a sphere of liquid champagne metal, its surface rippling slowly; ripples grow as you scroll
+      const geo = new THREE.SphereGeometry(1.45, 180, 180), base = geo.attributes.position.array.slice(), pos = geo.attributes.position;
+      const m = new THREE.Mesh(geo, metal({ roughness: .1, iridescence: .25, iridescenceIOR: 1.4 })); g.add(m);
+      const halo = new THREE.Mesh(new THREE.TorusGeometry(2.25, .006, 12, 300), new THREE.MeshStandardMaterial({ color: P.ring, metalness: 1, roughness: .3 })); halo.rotation.x = 1.45; g.add(halo);
+      let frame = 0;
+      return (t, p, mx, my) => {
+        const amp = .13 + p * .22;
+        for (let i = 0; i < pos.count; i++) {
+          const x = base[i * 3], y = base[i * 3 + 1], z = base[i * 3 + 2];
+          const d = amp * Math.sin(x * 1.9 + t * .9) * Math.sin(y * 2.1 + t * 1.1) * Math.sin(z * 1.7 + t * .7) + .05 * Math.sin(x * 4.3 + y * 3.7 + t * 1.6);
+          const k = 1 + d / 1.45; pos.setXYZ(i, x * k, y * k, z * k);
+        }
+        pos.needsUpdate = true; if (frame++ % 2 === 0) geo.computeVertexNormals();
+        m.rotation.y = t * .15 + mx * .5; m.rotation.x = my * .25; halo.rotation.z = t * .1;
+      };
+    },
+
+    stack() { // his stack as a small system: front end → services → data and cloud, with light pulses running along the links
+      const nodes = {
+        'React · TypeScript': [-1.8, 1.2, .3], '.NET microservices': [0, .35, 0], 'REST APIs': [-1.1, -.35, .9],
+        'SQL Server': [1.5, -1.1, .4], 'Azure': [1.7, 1.05, -.4], 'GitHub Actions': [-.4, -1.55, -.6],
+        'Docker': [.6, -1.95, .9], 'Azure OpenAI (experimental)': [.25, 1.95, -.9], 'App Insights': [1.75, -.2, 1.1],
+      };
+      const links = [['React · TypeScript', 'REST APIs'], ['REST APIs', '.NET microservices'], ['.NET microservices', 'SQL Server'], ['.NET microservices', 'Azure'],
+        ['.NET microservices', 'Azure OpenAI (experimental)'], ['GitHub Actions', 'Docker'], ['Docker', 'Azure'], ['Azure', 'App Insights'], ['App Insights', '.NET microservices'], ['GitHub Actions', '.NET microservices']];
+      const V3 = a => new THREE.Vector3(...a), pts = {};
+      Object.entries(nodes).forEach(([name, p], i) => {
+        const big = name === '.NET microservices';
+        const s = new THREE.Mesh(new THREE.SphereGeometry(big ? .34 : .17, 64, 64), metal(big ? {} : { roughness: .2 })); s.position.copy(V3(p)); g.add(s); pts[name] = s;
+        const l = label(name, 46, P.soft, 400); l.position.copy(V3(p)).add(new THREE.Vector3(0, big ? .5 : .3, 0)); g.add(l); sprites.push(l);
+      });
+      const pulses = links.map(([a, b], i) => {
+        const A = V3(nodes[a]), B = V3(nodes[b]), mid = A.clone().add(B).multiplyScalar(.5).add(new THREE.Vector3(0, .25, .35));
+        const curve = new THREE.QuadraticBezierCurve3(A, mid, B);
+        g.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 48, .007, 6), new THREE.MeshBasicMaterial({ color: P.line, transparent: true, opacity: .8 })));
+        const dot = new THREE.Mesh(new THREE.SphereGeometry(.045, 16, 16), new THREE.MeshBasicMaterial({ color: P.ring })); g.add(dot);
+        return { curve, dot, off: i * .37 };
+      });
+      return (t, p, mx, my) => {
+        pulses.forEach(q => q.dot.position.copy(q.curve.getPointAt((t * .35 + q.off) % 1)));
+        g.rotation.y = Math.sin(t * .15) * .35 + mx * .4 + p * 1.2; g.rotation.x = my * .15;
+        Object.values(pts).forEach((s, i) => s.position.y += Math.sin(t * 1.1 + i) * .0009);
+      };
+    },
+
+    globe() { // a dotted porcelain globe turning slowly, with a gold arc from Colombo to London
+      const R = 1.45, N = 4600, pos = new Float32Array(N * 3), golden = Math.PI * (3 - Math.sqrt(5));
+      for (let i = 0; i < N; i++) { const y = 1 - i / (N - 1) * 2, r = Math.sqrt(1 - y * y), th = golden * i; pos.set([Math.cos(th) * r * R, y * R, Math.sin(th) * r * R], i * 3); }
+      const globe = new THREE.Group(); g.add(globe);
+      const dg = new THREE.BufferGeometry(); dg.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      globe.add(new THREE.Points(dg, new THREE.PointsMaterial({ color: P.light ? 0x77736b : 0xd8d0c0, size: .026, transparent: true, opacity: .9, depthWrite: false })));
+      globe.add(new THREE.Mesh(new THREE.SphereGeometry(R * .985, 64, 64), new THREE.MeshPhysicalMaterial({ color: P.light ? 0xfbfaf7 : 0x0d0c0a, roughness: .3, clearcoat: 1, transparent: true, opacity: .45, depthWrite: false })));
+      const ll = (lat, lon, r = R) => { const a = THREE.MathUtils.degToRad(90 - lat), b = THREE.MathUtils.degToRad(lon + 180); return new THREE.Vector3(-r * Math.sin(a) * Math.cos(b), r * Math.cos(a), r * Math.sin(a) * Math.sin(b)); };
+      const cmb = ll(6.93, 79.85), lon = ll(51.51, -.13);
+      const mid = cmb.clone().add(lon).normalize().multiplyScalar(R * 1.55);
+      const arc = new THREE.QuadraticBezierCurve3(cmb, mid, lon);
+      globe.add(new THREE.Mesh(new THREE.TubeGeometry(arc, 120, .012, 8), new THREE.MeshStandardMaterial({ color: P.ring, metalness: 1, roughness: .25 })));
+      [[cmb, 'Colombo'], [lon, 'London']].forEach(([v, n]) => {
+        const s = new THREE.Mesh(new THREE.SphereGeometry(.06, 24, 24), metal()); s.position.copy(v); globe.add(s);
+        const l = label(n, 52, P.ink, 400, '"Cormorant Garamond"'); l.position.copy(v.clone().multiplyScalar(1.2)).add(new THREE.Vector3(0, .12, 0)); globe.add(l); sprites.push(l);
+      });
+      const traveller = new THREE.Mesh(new THREE.SphereGeometry(.05, 16, 16), new THREE.MeshBasicMaterial({ color: P.ring })); globe.add(traveller);
+      g.remove(globe); const turn = new THREE.Group(); turn.add(globe); g.add(turn);
+      { const nrm = cmb.clone().cross(lon).normalize(); globe.quaternion.setFromUnitVectors(nrm, new THREE.Vector3(-.15, .55, 1).normalize()); } // the arc's plane faces the viewer, so its curve shows
+      return (t, p, mx, my) => {
+        traveller.position.copy(arc.getPointAt((t * .18) % 1));
+        turn.rotation.y = Math.sin(t * .25) * .3 + mx * .35 + p * 1.5; turn.rotation.x = my * .12;
+      };
+    },
+
+    gallery() { // project panels on a turning ring, in porcelain
+      const projects = [['Zeylan', 'Trip planner for Sri Lanka holidays', 'Astro · three.js · Cloudflare Workers', 'Personal · 2026'],
+        ['AXD-Fraud', 'Fraud detection with neural networks', 'Python · TensorFlow · SHAP · F1 0.82', 'MSc dissertation · 2026'],
+        ['Edirisooriya Stores', 'Counter POS, owner app & cloud copy', 'Electron · React · SQLite · Supabase', 'Shop system · 2026'],
+        ['Kivorana', 'Web studio for small businesses', 'Next.js · TypeScript · Cloudflare Pages', 'Own studio · 2026'],
+        ['Archive', 'Physio clinic · Android chat · more', 'Java · JUnit · Firebase', 'Earlier work']];
+      const n = projects.length, Rad = 2.6, ring = new THREE.Group(); g.add(ring);
+      const draw = (x, [title, desc, stack, kind], i) => {
+        x.fillStyle = P.light ? '#f6f4ef' : '#100e0b'; x.fillRect(0, 0, 1200, 760);
+        x.strokeStyle = '#' + P.ring.toString(16).padStart(6, '0'); x.lineWidth = 2; x.strokeRect(34, 34, 1132, 692);
+        x.fillStyle = '#' + P.ring.toString(16).padStart(6, '0'); x.font = '500 26px Inter'; x.fillText(kind.toUpperCase(), 80, 120); x.font = '300 40px Inter'; x.fillText(String(i + 1).padStart(2, '0'), 1070, 125);
+        x.fillStyle = P.ink; x.font = `300 ${title.length > 12 ? 104 : 140}px "Cormorant Garamond"`; x.fillText(title, 74, 330);
+        x.fillStyle = '#' + P.ring.toString(16).padStart(6, '0'); x.fillRect(80, 380, 90, 2);
+        x.fillStyle = P.soft; x.font = '300 40px Inter'; x.fillText(desc, 80, 470); x.font = '400 28px "JetBrains Mono"'; x.fillText(stack, 80, 650);
+      };
+      const panels = projects.map((pr, i) => {
+        const c = document.createElement('canvas'); c.width = 1200; c.height = 760; draw(c.getContext('2d'), pr, i);
+        const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
+        const front = new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }), edge = metal({ roughness: .25 });
+        const m = new THREE.Mesh(new RoundedBoxGeometry(2.4, 1.52, .06, 4, .05), [edge, edge, edge, edge, front, edge]);
+        const a = i / n * Math.PI * 2; m.position.set(Math.sin(a) * Rad, 0, Math.cos(a) * Rad); m.rotation.y = a; ring.add(m);
+        m.userData.redraw = () => { draw(c.getContext('2d'), pr, i); tex.needsUpdate = true; }; return m;
+      });
+      document.fonts.ready.then(() => panels.forEach(m => m.userData.redraw()));
+      const floor = new THREE.Mesh(new THREE.RingGeometry(Rad + .6, Rad + .615, 256), new THREE.MeshBasicMaterial({ color: P.ring, transparent: true, opacity: .5, side: THREE.DoubleSide }));
+      floor.rotation.x = -Math.PI / 2; floor.position.y = -1.05; ring.add(floor);
+      ring.position.z = -1.6;
+      return (t, p, mx, my) => {
+        const turn = p * 1.6 * (n - 1) / n * Math.PI * 2 + Math.sin(t * .4) * .06;
+        ring.rotation.y = -turn + mx * .15; ring.rotation.x = .08 + my * .05;
+        panels.forEach((m, i) => { const f = Math.max(0, Math.cos(i / n * Math.PI * 2 - ring.rotation.y * -1)); const o = .15 + .85 * Math.pow(f, 2.5); m.material.forEach(mm => { mm.transparent = true; mm.opacity = o; }); });
+      };
+    },
+
+    particles() { // particles that morph sphere → double helix → field, drawn as fine graphite-and-gold grain on the light page
+      const N = innerWidth < 760 ? 7000 : 12000, A = new Float32Array(N * 3), B = new Float32Array(N * 3), C = new Float32Array(N * 3), Rr = new Float32Array(N), golden = Math.PI * (3 - Math.sqrt(5));
+      for (let i = 0; i < N; i++) {
+        const y = 1 - i / (N - 1) * 2, r = Math.sqrt(1 - y * y), th = golden * i, rad = 1.8; A.set([Math.cos(th) * r * rad, y * rad, Math.sin(th) * r * rad], i * 3);
+        const u = i / N, st = i % 3, a = (st < 2 ? u : Math.floor(u * 110) / 110) * Math.PI * 11 + (st === 1 ? Math.PI : 0), s = st < 2 ? 1 : Math.random() * 2 - 1;
+        B.set([Math.cos(a) * 1 * s, ((st < 2 ? u : Math.floor(u * 110) / 110) - .5) * 4.6, Math.sin(a) * 1 * s], i * 3);
+        const x = (Math.random() - .5) * 6, z = (Math.random() - .5) * 4; C.set([x, Math.sin(x * 1.4) * .4 + Math.cos(z * 1.6) * .25, z], i * 3); Rr[i] = Math.random();
+      }
+      const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(A, 3)); geo.setAttribute('aB', new THREE.BufferAttribute(B, 3)); geo.setAttribute('aC', new THREE.BufferAttribute(C, 3)); geo.setAttribute('aR', new THREE.BufferAttribute(Rr, 1));
+      const mat = new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: P.light ? THREE.NormalBlending : THREE.AdditiveBlending,
+        uniforms: { uT: { value: 0 }, uM: { value: 0 }, uPR: { value: renderer.getPixelRatio() }, uC1: { value: new THREE.Color(P.pt1) }, uC2: { value: new THREE.Color(P.pt2) } },
+        vertexShader: `attribute vec3 aB; attribute vec3 aC; attribute float aR; uniform float uT, uM, uPR; varying float vA; varying float vY;
+          void main(){ float m1 = smoothstep(0.,1.,clamp(uM,0.,1.)), m2 = smoothstep(0.,1.,clamp(uM-1.,0.,1.)); vec3 q = mix(mix(position,aB,m1),aC,m2);
+          q += .03*vec3(sin(uT*.8+aR*40.),cos(uT*.7+aR*33.),sin(uT*.6+aR*21.)); vec4 mv = modelViewMatrix*vec4(q,1.); gl_Position = projectionMatrix*mv;
+          gl_PointSize = 21.*uPR*(.45+aR*.8)/-mv.z; vA = .35+.65*aR; vY = q.y; }`,
+        fragmentShader: `uniform vec3 uC1, uC2; varying float vA; varying float vY; void main(){ float d = length(gl_PointCoord-.5); if(d>.5) discard; gl_FragColor = vec4(mix(uC1,uC2,smoothstep(-1.8,1.8,vY)), smoothstep(.5,.1,d)*vA*.95); }` });
+      const pts = new THREE.Points(geo, mat); g.add(pts);
+      return (t, p, mx, my) => { mat.uniforms.uT.value = t; mat.uniforms.uM.value = Math.min(p * 2.6, 2); pts.rotation.y = t * .07 + mx * .35; pts.rotation.x = my * .15 + Math.min(p * 2.6, 2) * .15; };
+    },
+  };
+  const step = scenes[SCENE]();
+  let baseX = 2, baseY = .2, baseS = 1;
+  return {
+    layout() { if (mobile()) { baseX = 0; baseY = 1.3; baseS = .72; } else { baseX = 2.1; baseY = .25; baseS = 1; } },
+    update(t, p, mx, my) {
+      step(t, p, mx, my);
+      const drift = SCENE === 'gallery' || SCENE === 'stack' ? .35 : 1; // scenes with content stay closer while scrolling
+      g.position.set(baseX - p * baseX * 1.6 * drift, baseY + Math.sin(t * .7) * .08 + p * 1.0 * drift, -p * 2 * drift);
+      g.scale.setScalar(baseS * (1 - p * .25 * drift));
+      camera.position.x = mx * .25; camera.position.y = my * .15; camera.lookAt(0, 0, 0);
+    }
+  };
+}
+
+/* ───────── J · Atelier: pearls, glass and one bronze form floating around the name ───────── */
+function atelier(scene, camera, mobile) {
+  renderer.toneMappingExposure = 1.05;
+  scene.background = new THREE.Color(0xefe7da);
+  { // backdrop: soft warm glow and fine vertical lines, so the glass has something to bend
+    const c = document.createElement('canvas'); c.width = 2048; c.height = 1024; const x = c.getContext('2d');
+    const gr = x.createRadialGradient(1024, 480, 40, 1024, 512, 1100); gr.addColorStop(0, '#fbf7f0'); gr.addColorStop(1, '#e6dccb');
+    x.fillStyle = gr; x.fillRect(0, 0, 2048, 1024);
+    for (let i = 0; i < 2048; i += 64) { x.fillStyle = i % 256 ? 'rgba(138,106,59,.10)' : 'rgba(138,106,59,.22)'; x.fillRect(i, 0, 2, 1024); }
+    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+    const back = new THREE.Mesh(new THREE.PlaneGeometry(40, 20), new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }));
+    back.position.z = -8; scene.add(back);
+  }
+  const pearl = new THREE.MeshPhysicalMaterial({ color: 0xf4ede1, roughness: .28, metalness: 0, clearcoat: 1, clearcoatRoughness: .1, sheen: 1, sheenColor: new THREE.Color(0xffe1b8), sheenRoughness: .4, iridescence: .35, iridescenceIOR: 1.3 });
+  const glass = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 1, roughness: .03, thickness: 1.6, ior: 1.5, clearcoat: 1, dispersion: 2.5, attenuationColor: new THREE.Color(0xe9cfa3), attenuationDistance: 2.2 });
+  const bronze = new THREE.MeshPhysicalMaterial({ color: 0xa47a43, metalness: 1, roughness: .22, clearcoat: .6 });
+  const items = [
+    [new THREE.SphereGeometry(.62, 96, 96), pearl, [-3.3, 1.5, -.5]],
+    [new THREE.CapsuleGeometry(.36, .9, 16, 48), glass, [3.2, 1.6, .3]],
+    [new THREE.SphereGeometry(.34, 64, 64), bronze, [2.4, -1.7, .8]],
+    [new THREE.TorusGeometry(.48, .18, 48, 128), glass, [-2.6, -1.6, .6]],
+    [new THREE.SphereGeometry(.24, 64, 64), pearl, [-1.2, 2.3, -1.2]],
+    [new THREE.SphereGeometry(.9, 96, 96), glass, [4.4, -.3, -2.2]],
+    [new THREE.IcosahedronGeometry(.42, 0), bronze, [-4.4, .1, -1.8]],
+    [new THREE.SphereGeometry(.2, 48, 48), pearl, [1.0, -2.4, -.6]],
+  ];
+  const g = new THREE.Group(); scene.add(g);
+  const objs = items.map(([geo, mat, p], i) => { const m = new THREE.Mesh(geo, mat); m.position.set(...p); m.userData = { base: new THREE.Vector3(...p), ph: i * 1.7 }; g.add(m); return m; });
+  const key = new THREE.DirectionalLight(0xfff3e0, 2.4); key.position.set(-3, 5, 6); scene.add(key);
+  const fill = new THREE.DirectionalLight(0xffd9a8, 1.2); fill.position.set(4, -2, 3); scene.add(fill);
+  let spread = 1;
+  return {
+    layout() { spread = mobile() ? .55 : 1; },
+    update(t, p, mx, my) {
+      objs.forEach(o => {
+        const b = o.userData.base, ph = o.userData.ph;
+        o.position.set(b.x * spread * (1 + p * .9), b.y * (mobile() ? 1.5 : 1) + Math.sin(t * .6 + ph) * .14 + p * (b.y > 0 ? 1.5 : -1.5), b.z + Math.cos(t * .5 + ph) * .1);
+        o.rotation.x = t * .2 + ph; o.rotation.y = t * .25 + ph;
+      });
+      g.rotation.y = mx * .18; g.rotation.x = -my * .1;
+      camera.position.z = 9 + p * 2; camera.lookAt(0, 0, 0);
+    }
+  };
+}
+
+/* ───────── K · Nocturne: particles that morph sphere → double helix → field on scroll ───────── */
+function nocturne(scene, camera, mobile) {
+  const N = innerWidth < 760 ? 8000 : 14000;
+  const A = new Float32Array(N * 3), B = new Float32Array(N * 3), C = new Float32Array(N * 3), R = new Float32Array(N);
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < N; i++) {
+    const y = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - y * y), th = golden * i, rad = 2.1 + (Math.random() - .5) * .06;
+    A.set([Math.cos(th) * r * rad, y * rad, Math.sin(th) * r * rad], i * 3);
+    const u = i / N, strand = i % 3;
+    if (strand < 2) { const a = u * Math.PI * 12 + strand * Math.PI; B.set([Math.cos(a) * 1.15, (u - .5) * 6, Math.sin(a) * 1.15], i * 3); }
+    else { const a = Math.floor(u * 120) / 120 * Math.PI * 12, s = Math.random() * 2 - 1; B.set([Math.cos(a) * 1.15 * s, (Math.floor(u * 120) / 120 - .5) * 6, Math.sin(a) * 1.15 * s], i * 3); }
+    const x = (Math.random() - .5) * 11, z = (Math.random() - .5) * 6;
+    C.set([x, Math.sin(x * 1.1) * .45 + Math.cos(z * 1.4) * .3 - .6, z], i * 3);
+    R[i] = Math.random();
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(A, 3));
+  geo.setAttribute('aB', new THREE.BufferAttribute(B, 3));
+  geo.setAttribute('aC', new THREE.BufferAttribute(C, 3));
+  geo.setAttribute('aR', new THREE.BufferAttribute(R, 1));
+  const mat = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    uniforms: { uT: { value: 0 }, uM: { value: 0 }, uSize: { value: 26 }, uPR: { value: renderer.getPixelRatio() }, uC1: { value: new THREE.Color(0x9fb4d8) }, uC2: { value: new THREE.Color(0xf0d9a8) } },
+    vertexShader: `
+      attribute vec3 aB; attribute vec3 aC; attribute float aR;
+      uniform float uT, uM, uSize, uPR; varying float vA; varying float vY;
+      void main() {
+        float m1 = smoothstep(0., 1., clamp(uM, 0., 1.)), m2 = smoothstep(0., 1., clamp(uM - 1., 0., 1.));
+        vec3 q = mix(mix(position, aB, m1), aC, m2);
+        q += 0.035 * vec3(sin(uT * .8 + aR * 40.), cos(uT * .7 + aR * 33.), sin(uT * .6 + aR * 21.));
+        vec4 mv = modelViewMatrix * vec4(q, 1.);
+        gl_Position = projectionMatrix * mv;
+        gl_PointSize = uSize * uPR * (.45 + aR * .8) / -mv.z;
+        vA = .25 + .75 * aR; vY = q.y;
+      }`,
+    fragmentShader: `
+      uniform vec3 uC1, uC2; varying float vA; varying float vY;
+      void main() { float d = length(gl_PointCoord - .5); if (d > .5) discard;
+        gl_FragColor = vec4(mix(uC1, uC2, smoothstep(-2.2, 2.2, vY)), smoothstep(.5, .0, d) * vA * .85); }`
+  });
+  const pts = new THREE.Points(geo, mat); scene.add(pts);
+  let baseY = .3;
+  return {
+    layout() { baseY = mobile() ? 1.4 : .35; camera.position.z = mobile() ? 12 : 9; },
+    update(t, p, mx, my) {
+      mat.uniforms.uT.value = t; mat.uniforms.uM.value = Math.min(p * 2.3, 2);
+      pts.rotation.y = t * .06 + mx * .35; pts.rotation.x = my * .15 + Math.min(p * 2.3, 2) * .18;
+      pts.position.y = baseY * (1 - Math.min(p * 3, 1));
+    }
+  };
+}
+
+/* ───────── L · Gallery: project panels on a turning ring, driven by scroll ───────── */
+function gallery(scene, camera, mobile) {
+  const projects = [
+    ['Zeylan', 'Trip planner for Sri Lanka holidays', 'Astro · three.js · Cloudflare Workers', 'Personal · 2026'],
+    ['AXD-Fraud', 'Fraud detection with neural networks', 'Python · TensorFlow · SHAP · F1 0.82', 'MSc dissertation · 2026'],
+    ['Edirisooriya Stores', 'Counter POS, owner app & cloud copy', 'Electron · React · SQLite · Supabase', 'Shop system · 2026'],
+    ['Kivorana', 'Web studio for small businesses', 'Next.js · TypeScript · Cloudflare Pages', 'Own studio · 2026'],
+    ['Archive', 'Physio clinic · Android chat · more', 'Java · JUnit · Firebase', 'Earlier work'],
+  ];
+  const n = projects.length, Rad = 3.6, g = new THREE.Group(); scene.add(g);
+  const panels = projects.map(([title, desc, stack, kind], i) => {
+    const c = document.createElement('canvas'); c.width = 1200; c.height = 760; const x = c.getContext('2d');
+    const grd = x.createLinearGradient(0, 0, 1200, 760); grd.addColorStop(0, '#15211c'); grd.addColorStop(1, '#070a09');
+    x.fillStyle = grd; x.fillRect(0, 0, 1200, 760);
+    x.strokeStyle = 'rgba(79,209,161,.55)'; x.lineWidth = 2; x.strokeRect(34, 34, 1132, 692);
+    x.fillStyle = '#4fd1a1'; x.font = '500 26px Inter'; x.fillText(kind.toUpperCase(), 80, 120);
+    x.fillStyle = '#ecefe9'; x.font = `300 ${title.length > 12 ? 104 : 140}px "Cormorant Garamond"`; x.fillText(title, 74, 330);
+    x.fillStyle = '#d6b87a'; x.fillRect(80, 380, 90, 2);
+    x.fillStyle = '#b9c4bf'; x.font = '300 40px Inter'; x.fillText(desc, 80, 470);
+    x.fillStyle = '#8c9b94'; x.font = '400 28px "JetBrains Mono"'; x.fillText(stack, 80, 650);
+    x.fillStyle = '#4fd1a1'; x.font = '300 40px Inter'; x.fillText(String(i + 1).padStart(2, '0'), 1070, 125);
+    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
+    const front = new THREE.MeshPhysicalMaterial({ map: tex, roughness: .35, metalness: .1, clearcoat: 1, clearcoatRoughness: .08 });
+    const edge = new THREE.MeshPhysicalMaterial({ color: 0x0b0f0d, roughness: .2, metalness: .6, clearcoat: 1 });
+    const m = new THREE.Mesh(new RoundedBoxGeometry(3, 1.9, .07, 4, .06), [edge, edge, edge, edge, front, edge]);
+    const a = i / n * Math.PI * 2; m.position.set(Math.sin(a) * Rad, 0, Math.cos(a) * Rad); m.rotation.y = a;
+    g.add(m); return m;
+  });
+  const ringG = new THREE.RingGeometry(Rad + .9, Rad + .92, 256); const ringM = new THREE.Mesh(ringG, new THREE.MeshBasicMaterial({ color: 0x4fd1a1, transparent: true, opacity: .35, side: THREE.DoubleSide }));
+  ringM.rotation.x = -Math.PI / 2; ringM.position.y = -1.25; g.add(ringM);
+  const key = new THREE.DirectionalLight(0xffffff, 1.6); key.position.set(2, 3, 8); scene.add(key);
+  const em = new THREE.PointLight(0x4fd1a1, 40, 14); em.position.set(0, -2.5, Rad + 1); scene.add(em);
+  const countEl = document.getElementById('lcount');
+  let ox = 2.2, oy = 0;
+  const redraw = () => panels.forEach(p => p.material[4].map.needsUpdate = true);
+  document.fonts.ready.then(() => { /* repaint panel text once the web fonts arrive */
+    panels.forEach((m, i) => { const tex = m.material[4].map, c = tex.image, x = c.getContext('2d'); const [title, desc, stack, kind] = projects[i];
+      const grd = x.createLinearGradient(0, 0, 1200, 760); grd.addColorStop(0, '#15211c'); grd.addColorStop(1, '#070a09');
+      x.fillStyle = grd; x.fillRect(0, 0, 1200, 760); x.strokeStyle = 'rgba(79,209,161,.55)'; x.lineWidth = 2; x.strokeRect(34, 34, 1132, 692);
+      x.fillStyle = '#4fd1a1'; x.font = '500 26px Inter'; x.fillText(kind.toUpperCase(), 80, 120);
+      x.fillStyle = '#ecefe9'; x.font = `300 ${title.length > 12 ? 104 : 140}px "Cormorant Garamond"`; x.fillText(title, 74, 330);
+      x.fillStyle = '#d6b87a'; x.fillRect(80, 380, 90, 2); x.fillStyle = '#b9c4bf'; x.font = '300 40px Inter'; x.fillText(desc, 80, 470);
+      x.fillStyle = '#8c9b94'; x.font = '400 28px "JetBrains Mono"'; x.fillText(stack, 80, 650);
+      x.fillStyle = '#4fd1a1'; x.font = '300 40px Inter'; x.fillText(String(i + 1).padStart(2, '0'), 1070, 125); });
+    redraw();
+  });
+  return {
+    layout() { if (mobile()) { ox = 0; oy = 1.6; camera.position.set(0, .4, Rad + 10); camera.clearViewOffset(); } else { ox = 0; oy = 0; camera.position.set(0, .5, Rad + 6.6); camera.setViewOffset(innerWidth, innerHeight, -innerWidth * .2, 0, innerWidth, innerHeight); } },
+    update(t, p, mx, my) {
+      const turn = p * (n - 1) / n * Math.PI * 2;
+      g.rotation.y = -turn + Math.sin(t * .4) * .03 + mx * .12;
+      g.position.set(ox, oy + Math.sin(t * .6) * .05, 0);
+      g.rotation.x = my * .05;
+      camera.lookAt(ox, oy, Rad - 1);
+      countEl.textContent = String(Math.round(p * (n - 1)) + 1).padStart(2, '0');
+      panels.forEach((m, i) => { const a = i / n * Math.PI * 2 - turn, f = Math.max(0, Math.cos(a)); m.position.y = f > .95 ? Math.sin(t * 1.2) * .04 : 0; const o = .12 + .88 * Math.pow(f, 3); m.material.forEach(mm => { mm.transparent = true; mm.opacity = o; }); });
+    }
+  };
+}
+</script>
+</body>
+</html>
