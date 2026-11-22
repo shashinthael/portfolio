@@ -46,7 +46,7 @@ test('the Gallery changes project with Next, Prev and the arrow keys', async ({ 
   await page.goto('/?force3d');
   const count = page.locator('#work-count');
   const current = page.locator('.wu.on h3');
-  await page.evaluate(() => scrollTo(0, document.getElementById('work')!.offsetTop));
+  await page.evaluate(() => scrollTo({ top: document.getElementById('work')!.offsetTop, behavior: 'instant' }));
   await expect(current).toHaveText(featured[0].title);
 
   await page.getByRole('button', { name: 'Next →' }).click();
@@ -67,6 +67,6 @@ test('on desktop, scrolling through the section turns the Gallery one project pe
   test.skip(info.project.name !== 'desktop', 'phones swipe instead of scrolling');
   await page.goto('/?force3d');
   const span = await page.evaluate(() => { const w = document.getElementById('work')!; return { top: w.offsetTop, h: w.offsetHeight - innerHeight }; });
-  await page.evaluate(({ top, h }) => scrollTo(0, top + h * 0.6), span);
+  await page.evaluate(({ top, h }) => scrollTo({ top: top + h * 0.6, behavior: 'instant' }), span);
   await expect(page.locator('.wu.on h3')).toHaveText(featured[2].title);
 });

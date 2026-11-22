@@ -64,7 +64,13 @@ const person = {
         var slow = sessionStorage.getItem('pf-no3d') === '1' && !force;
         var c = navigator.connection, save = c && c.saveData;
         var gl = document.createElement('canvas').getContext('webgl2', { failIfMajorPerformanceCaveat: !force });
-        if (gl && !slow && !save) {
+        // Some browsers (e.g. headless Chrome on Linux) render in software without reporting the caveat: check the renderer too.
+        var soft = false;
+        if (gl) {
+          var dbg = gl.getExtension('WEBGL_debug_renderer_info');
+          soft = /swiftshader|llvmpipe|softpipe|software|basic render/i.test(String(gl.getParameter(dbg ? dbg.UNMASKED_RENDERER_WEBGL : gl.RENDERER)));
+        }
+        if (gl && !slow && !save && (!soft || force)) {
           d.classList.add('has3d');
           if (force) d.classList.add('force3d');
           var lose = gl.getExtension('WEBGL_lose_context'); lose && lose.loseContext();

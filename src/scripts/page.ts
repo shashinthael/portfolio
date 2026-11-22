@@ -74,6 +74,7 @@ function start3d() {
   const n = featured.length;
   const desktop = matchMedia('(min-width: 761px)');
   let index = 0;
+  let pickedAt = -Infinity; // while the page scrolls itself to a picked project, scrolling must not change the project
   let gallery: { poke(): void; dispose(): void } | null = null;
 
   const show = (i: number) => {
@@ -91,6 +92,7 @@ function start3d() {
   const pick = (i: number) => {
     i = wrap(i, n);
     if (desktop.matches) {
+      pickedAt = performance.now();
       const span = work.offsetHeight - innerHeight;
       scrollTo({ top: work.offsetTop + span * progressForIndex(i, n), behavior: reduced ? 'auto' : 'smooth' });
     }
@@ -103,6 +105,7 @@ function start3d() {
   });
   addEventListener('scroll', () => {
     if (!desktop.matches || !root.classList.contains('has3d')) return;
+    if (performance.now() - pickedAt < 1200) return;
     const span = work.offsetHeight - innerHeight;
     if (span <= 0) return;
     const p = (scrollY - work.offsetTop) / span;
@@ -110,6 +113,7 @@ function start3d() {
     const i = indexFromProgress(p, n);
     if (i !== index) show(i);
   }, { passive: true });
+  addEventListener('scrollend', () => { pickedAt = -Infinity; });
 
   /* Gallery scene: loaded when the section comes within a screen of view. */
   const near = new IntersectionObserver(async ([e]) => {
