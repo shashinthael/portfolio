@@ -1,0 +1,23 @@
+---
+import { profile } from '../data/profile';
+---
+<footer class="contact" id="contact" aria-labelledby="contact-title">
+  <p class="signoff rv" id="contact-title">{profile.signOff}</p>
+  <a class="btn lab rv" href={`mailto:${profile.email}`}>Email me</a>
+  <p class="email rv">{profile.email}</p>
+  <nav class="links lab" aria-label="Elsewhere">
+    <a class="ulink" href={profile.linkedin} rel="me noopener">LinkedIn</a>
+    <a class="ulink" href={profile.github} rel="me noopener">GitHub</a>
+    <a class="ulink" href={profile.cv} download>CV (PDF)</a>
+  </nav>
+  <p class="small">No cookies. Simple visit counts by Cloudflare Web Analytics.</p>
+  <p class="small">© {new Date().getFullYear()} {profile.fullName}</p>
+</footer>
+
+<style>
+  .contact { padding: 14vh var(--pad) 10vh; text-align: center; }
+  .signoff { font: italic 300 clamp(40px, 5vw, 72px)/1.1 var(--serif); margin-bottom: 26px; }
+  .email { margin-top: 14px; font: 400 13px var(--mono); color: var(--muted); }
+  .links { display: flex; gap: 28px; justify-content: center; margin: 12vh 0 24px; }
+  .small { font: 400 12px/1.8 var(--sans); color: var(--muted); }
+</style>

@@ -1,0 +1,58 @@
+---
+import { profile } from '../data/profile';
+import { stackCaption, stackNodes } from '../data/stack';
+import { stackSvgInner } from '../lib/stackSvg';
+---
+<section class="hero" aria-labelledby="name">
+  <div class="copy">
+    <p class="lab gold eyebrow">{profile.role}</p>
+    <h1 id="name">{profile.firstName}<br /><em>{profile.lastName}</em></h1>
+    <p class="phoneline">{profile.phoneLine}</p>
+    <p class="lede">{profile.lede}</p>
+    <div class="ctas lab">
+      <a class="btn" href={profile.cv} download>Download CV</a>
+      <a class="ulink" href="#contact">Get in touch</a>
+    </div>
+  </div>
+
+  <figure class="stage">
+    <!-- The still diagram is always in the HTML; the 3D canvas fades in over it once it's running. -->
+    <svg class="stack-svg" viewBox="0 0 600 520" role="img" aria-labelledby="stack-cap" set:html={stackSvgInner()} />
+    <canvas id="stack-gl" aria-hidden="true"></canvas>
+    <ul class="sr-only">{stackNodes.map((n) => <li>{n.label}</li>)}</ul>
+    <figcaption id="stack-cap">{stackCaption}<span class="hint"> · hover a part</span></figcaption>
+    <button class="pause lab" type="button" id="motion-toggle" aria-pressed="false">Pause motion</button>
+  </figure>
+</section>
+
+<style>
+  .hero { min-height: 78vh; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); align-items: end; gap: 20px; padding: 96px var(--pad) 28px; }
+  .eyebrow { margin-bottom: 18px; }
+  h1 { font: 300 clamp(52px, 7.4vw, 116px)/0.9 var(--serif); letter-spacing: -1.5px; }
+  h1 em { font-style: italic; color: var(--gold); padding-left: 0.55em; }
+  .phoneline { display: none; }
+  .lede { font: 400 16.5px/1.75 var(--sans); color: var(--lede); max-width: 46ch; margin-top: 24px; }
+  .ctas { display: flex; flex-wrap: wrap; gap: 26px; align-items: center; margin-top: 28px; }
+
+  .stage { position: relative; height: min(64vh, 600px); }
+  .stack-svg, canvas { position: absolute; inset: 0 0 28px 0; width: 100%; height: calc(100% - 28px); transition: opacity 0.8s; }
+  canvas { opacity: 0; }
+  :global(.stack-ready) canvas { opacity: 1; }
+  :global(.stack-ready) .stack-svg { opacity: 0; }
+  figcaption { position: absolute; left: 0; bottom: 0; font: 400 11px var(--mono); color: var(--muted); }
+  .hint { display: none; }
+  :global(.stack-ready) .hint { display: inline; }
+  .pause { position: absolute; right: 0; bottom: -6px; min-height: 30px; display: none; background: none; border: 1px solid var(--line); padding: 7px 10px; cursor: pointer; color: var(--muted); }
+  :global(.has3d) .pause { display: block; }
+
+  @media (max-width: 760px) {
+    .hero { grid-template-columns: 1fr; min-height: auto; padding: 72px var(--pad) 18px; }
+    .stage { order: -1; height: 250px; }
+    figcaption { display: none; }
+    .stack-svg, canvas { bottom: 0; height: 100%; }
+    .pause { top: 0; bottom: auto; }
+    h1 { font-size: 54px; }
+    .phoneline { display: block; font: 400 12px/1.6 var(--mono); color: var(--muted); margin-top: 14px; }
+    .lede { font-size: 15px; }
+  }
+</style>

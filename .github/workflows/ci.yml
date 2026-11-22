@@ -1,0 +1,52 @@
+# Every push and pull request: build, then every check in docs/portfolio-spec.md §10.
+# On main, when everything is green: deploy to Cloudflare Workers.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run typecheck
+      # Tests and Lighthouse always check the indexable page; the deploy below decides about noindex.
+      - run: npm run build
+        env: { PUBLIC_INDEXABLE: 'true' }
+      - run: npm test
+      - run: npm run size
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+        env: { CI: 'true' }
+      - name: Lighthouse (mobile)
+        run: npx --yes @lhci/cli@0.16.1 autorun --config=lighthouserc.json
+      - name: Lighthouse (desktop)
+        run: npx --yes @lhci/cli@0.16.1 autorun --config=lighthouserc.desktop.json
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    concurrency: deploy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run build
+        env:
+          PUBLIC_INDEXABLE: ${{ vars.INDEXABLE || 'false' }}
+          PUBLIC_CF_BEACON_TOKEN: ${{ vars.CF_BEACON_TOKEN }}
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy

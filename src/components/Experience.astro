@@ -1,0 +1,25 @@
+---
+import { experience } from '../data/experience';
+---
+<section class="section" id="experience" aria-labelledby="exp-title">
+  <h2 class="section-title rv" id="exp-title"><span class="lab">01</span>Experience</h2>
+  {experience.map((r) => (
+    <article class="row rv">
+      <div>
+        <h3>{r.title}</h3>
+        <p class="lab meta">{r.org} · {r.dates}</p>
+        <p class="lab meta place">{r.place}</p>
+      </div>
+      <div>
+        {r.note && <p class="note">{r.note}</p>}
+        <ul>{r.bullets.map((b) => <li>{b}</li>)}</ul>
+        <p class="stack">Stack: {r.stack}</p>
+      </div>
+    </article>
+  ))}
+</section>
+
+<style>
+  .place { margin-top: 4px; }
+  .note { font: italic 300 19px/1.4 var(--serif); color: var(--lede); margin-bottom: 10px; }
+</style>

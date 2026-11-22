@@ -1,0 +1,25 @@
+---
+import Layout from '../layouts/Layout.astro';
+import TopBar from '../components/TopBar.astro';
+import Hero from '../components/Hero.astro';
+import FactStrip from '../components/FactStrip.astro';
+import Experience from '../components/Experience.astro';
+import SelectedWork from '../components/SelectedWork.astro';
+import Education from '../components/Education.astro';
+import Contact from '../components/Contact.astro';
+---
+<Layout>
+  <TopBar />
+  <main id="main" tabindex="-1">
+    <Hero />
+    <FactStrip />
+    <Experience />
+    <SelectedWork />
+    <Education />
+  </main>
+  <Contact />
+</Layout>
+
+<script>
+  import '../scripts/page';
+</script>

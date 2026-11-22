@@ -1,0 +1,20 @@
+---
+import { facts } from '../data/profile';
+---
+<dl class="facts" aria-label="Key facts">
+  {facts.map((f) => <div><dt class="lab gold">{f.label}</dt><dd>{f.value}</dd></div>)}
+</dl>
+
+<style>
+  .facts { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin: 0 var(--pad); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); background: var(--panel); }
+  div { padding: 20px 18px; border-left: 1px solid var(--rule); }
+  div:first-child { border-left: 0; }
+  dt { margin-bottom: 8px; }
+  dd { font: 300 19px/1.3 var(--serif); color: var(--ink); }
+  @media (max-width: 760px) {
+    .facts { grid-template-columns: 1fr 1fr; }
+    div:nth-child(odd) { border-left: 0; }
+    div:nth-child(n + 3) { border-top: 1px solid var(--rule); }
+    div:last-child { grid-column: span 2; }
+  }
+</style>

@@ -1,0 +1,85 @@
+---
+import '@fontsource/cormorant-garamond/latin-300.css';
+import '@fontsource/cormorant-garamond/latin-300-italic.css';
+import '@fontsource/inter/latin-400.css';
+import '@fontsource/inter/latin-500.css';
+import '@fontsource/jetbrains-mono/latin-400.css';
+import heroSerif from '@fontsource/cormorant-garamond/files/cormorant-garamond-latin-300-normal.woff2?url';
+import '../styles/global.css';
+import { profile, seo } from '../data/profile';
+import { education } from '../data/education';
+
+const indexable = import.meta.env.PUBLIC_INDEXABLE === 'true';
+const beacon = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
+const canonical = new URL('/', profile.site).href;
+const ogImage = new URL('/og.png', profile.site).href;
+
+// Search engines' summary of who he is. No phone and no email (spec §9).
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: profile.fullName,
+  jobTitle: profile.jobTitle,
+  worksFor: { '@type': 'Organization', name: profile.employer },
+  alumniOf: education.map((d) => ({ '@type': 'CollegeOrUniversity', name: d.school })),
+  address: { '@type': 'PostalAddress', addressLocality: profile.city, addressCountry: 'GB' },
+  url: profile.site,
+  sameAs: [profile.linkedin, profile.github],
+};
+---
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{seo.title}</title>
+  <meta name="description" content={seo.description} />
+  <link rel="canonical" href={canonical} />
+  {!indexable && <meta name="robots" content="noindex" />}
+  <meta name="theme-color" content="#f3f3f1" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="preload" href={heroSerif} as="font" type="font/woff2" crossorigin />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:title" content={seo.title} />
+  <meta property="og:description" content={seo.description} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content={`${profile.fullName}, ${profile.role}`} />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content={ogImage} />
+  <script type="application/ld+json" set:html={JSON.stringify(person)} />
+
+  <!-- Decide before first paint whether the 3D can run, so the layout never shifts (spec §6.3). -->
+  <script is:inline>
+    (function () {
+      var d = document.documentElement, q = location.search;
+      d.classList.add('js');
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('reduce');
+      try {
+        var force = /[?&]force3d\b/.test(q); // test hook: skips the software-rendering and speed checks
+        var slow = sessionStorage.getItem('pf-no3d') === '1' && !force;
+        var c = navigator.connection, save = c && c.saveData;
+        var gl = document.createElement('canvas').getContext('webgl2', { failIfMajorPerformanceCaveat: !force });
+        if (gl && !slow && !save) {
+          d.classList.add('has3d');
+          if (force) d.classList.add('force3d');
+          var lose = gl.getExtension('WEBGL_lose_context'); lose && lose.loseContext();
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <slot />
+  {beacon && <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: beacon })} />}
+  <style>
+    .skip { position: absolute; left: -9999px; top: 12px; z-index: 100; background: #fff; padding: 10px 14px; }
+    .skip:focus { left: 16px; }
+  </style>
+</body>
+</html>

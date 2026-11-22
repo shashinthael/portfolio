@@ -1,0 +1,11 @@
+// Cloudflare Workers static assets (spec §11). `npm run deploy` builds and uploads dist/.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "portfolio",
+  "compatibility_date": "2026-11-22",
+  "assets": { "directory": "./dist", "not_found_handling": "404-page" },
+  // Before launch the site lives only at portfolio.<account>.workers.dev (built with noindex).
+  // At launch: uncomment the route below, set "workers_dev" to false, and set the INDEXABLE repo variable to true.
+  "workers_dev": true
+  // "routes": [{ "pattern": "shashintha.dev", "custom_domain": true }]
+}

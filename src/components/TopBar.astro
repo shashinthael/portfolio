@@ -1,0 +1,21 @@
+---
+import { profile } from '../data/profile';
+---
+<header class="top lab">
+  <nav aria-label="Sections"><a href="#work">Work</a><a href="#experience">Experience</a></nav>
+  <a class="mono" href="#main" aria-label={`S·E, ${profile.fullName}, back to top`}>S·E</a>
+  <nav aria-label="Contact"><a href="#contact">Contact</a><a href={profile.cv} download>CV</a></nav>
+</header>
+
+<style>
+  .top { position: fixed; inset: 0 0 auto 0; z-index: 20; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 18px var(--pad); background: linear-gradient(#ffffffee, #ffffff00); }
+  nav { display: flex; gap: 30px; }
+  nav:last-child { justify-content: flex-end; }
+  nav a { text-decoration: none; color: var(--muted); padding: 6px 0; }
+  nav a:hover { color: var(--gold-text); }
+  .mono { font: 300 26px/1 var(--serif); letter-spacing: 4px; color: var(--gold-text); text-decoration: none; text-transform: none; }
+  @media (max-width: 760px) {
+    .top { grid-template-columns: auto 1fr; }
+    nav:first-child { display: none; }
+  }
+</style>

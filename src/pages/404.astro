@@ -1,0 +1,15 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout>
+  <main id="main" class="nf">
+    <p class="lab gold">404 · page not found</p>
+    <h1>This page doesn't exist.</h1>
+    <a class="btn lab" href="/">Back to the portfolio</a>
+  </main>
+</Layout>
+
+<style>
+  .nf { min-height: 100vh; display: grid; place-content: center; justify-items: center; gap: 24px; text-align: center; padding: var(--pad); }
+  h1 { font: 300 clamp(40px, 6vw, 72px)/1.1 var(--serif); }
+</style>

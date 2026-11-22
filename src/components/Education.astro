@@ -1,0 +1,41 @@
+---
+import { education, skills } from '../data/education';
+import { archive } from '../data/projects';
+---
+{archive.length > 0 && (
+  <section class="section" id="archive" aria-labelledby="arc-title">
+    <h2 class="section-title rv" id="arc-title"><span class="lab">·</span>Archive</h2>
+    <ul class="archive">{archive.map((a) => <li class="rv"><a class="ulink" href={a.href}>{a.title}</a> {a.line}</li>)}</ul>
+  </section>
+)}
+
+<section class="section" id="education" aria-labelledby="edu-title">
+  <h2 class="section-title rv" id="edu-title"><span class="lab">03</span>Education</h2>
+  {education.map((d) => (
+    <article class="row rv">
+      <div>
+        <h3>{d.title} <span class="grade lab">{d.grade}</span></h3>
+        <p class="lab meta">{d.school} · {d.dates}</p>
+      </div>
+      <ul>{d.lines.map((l) => <li>{l.linkTo ? <a href={l.linkTo}>{l.text}</a> : l.text}</li>)}</ul>
+    </article>
+  ))}
+</section>
+
+<section class="section" id="skills" aria-labelledby="skills-title">
+  <h2 class="section-title rv" id="skills-title"><span class="lab">04</span>Skills</h2>
+  <dl class="skills rv">
+    {skills.map((s) => <div><dt class="lab gold">{s.group}</dt><dd>{s.items}</dd></div>)}
+  </dl>
+</section>
+
+<style>
+  .row h3 { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+  .grade { padding: 4px 8px; color: var(--gold-text); border: 1px solid var(--gold-text); }
+  .skills { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--rule); }
+  .skills div { padding: 24px 20px 24px 0; border-bottom: 1px solid var(--rule); }
+  dt { margin-bottom: 10px; }
+  dd { font: 400 15px/1.7 var(--sans); color: var(--lede); }
+  .archive { list-style: none; padding: 0; font: 400 15px/1.8 var(--sans); color: var(--lede); }
+  @media (max-width: 760px) { .skills { grid-template-columns: 1fr; } }
+</style>
